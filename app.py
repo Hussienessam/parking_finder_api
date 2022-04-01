@@ -16,9 +16,14 @@ def find():
 
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    
-    url = request.form['url']
-    capacity = request.form['capacity']
+
+    if(request.is_json):
+        content = request.get_json()
+        url = content['url']
+        capacity = content['capacity']
+    else:
+        url = request.form['url']
+        capacity = request.form['capacity']
     
     imageSaved, error = saveImage(input_path, url)
     if(imageSaved):
