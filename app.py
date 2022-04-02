@@ -2,7 +2,7 @@ from urllib.error import HTTPError
 import urllib.request
 from io import BytesIO
 from PIL import Image
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import os
 
 import main
@@ -28,7 +28,9 @@ def find():
     imageSaved, error = saveImage(input_path, url)
     if(imageSaved):
         spots = int(capacity) - main.model(input_path)
-        return str(spots)
+        return jsonify(
+            spots = spots
+        )
 
     else:
         return error
