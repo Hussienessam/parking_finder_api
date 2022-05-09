@@ -31,7 +31,6 @@ def find():
         return jsonify(
             spots = spots
         )
-
     else:
         return error
 
