@@ -21,3 +21,21 @@ def get(db):
             return jsonify(all_garages), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
+
+def update(db):
+    garage_ref = db.collection('Garages')
+    try:
+        id = request.json['id']
+        garage_ref.document(id).update(request.json)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return f"An Error Occurred: {e}"
+
+def delete(db):
+    garage_ref = db.collection('Garages')
+    try:
+        id = request.json['id']
+        garage_ref.document(id).delete()
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return f"An Error Occurred: {e}"

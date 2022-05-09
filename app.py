@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 @app.route('/find', methods=['POST'])
 def find():
-    return model.find(db)
+    return model.find()
 
 @app.route('/add_garage', methods=['POST'])
 def add_garage():
@@ -19,3 +19,11 @@ def add_garage():
 @app.route('/get_garage', methods=['GET'])
 def get_garage():
     return owner.get(db)
+
+@app.route('/update_garage', methods=['GET'])
+def update_garage():
+    return owner.update(db)
+
+@app.route('/delete_garage', methods=['GET'])
+def delete_garage():
+    return owner.delete(db)
