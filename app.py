@@ -3,9 +3,9 @@ import model.model_app as model
 import owner_user.owner_app as owner
 import driver_user.driver_app as driver
 import user.user_app as user
-import database.connect_database as db
+import database.connect_database as db_connection
 
-db.connect()
+db = db_connection.connect()
 app = Flask(__name__)
 
 @app.route('/find', methods=['POST'])
