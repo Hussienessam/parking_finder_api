@@ -15,3 +15,7 @@ def find():
 @app.route('/add_garage', methods=['POST'])
 def add_garage():
     return owner.create(db)
+
+@app.route('/get_garage', methods=['GET'])
+def get_garage():
+    return owner.get(db)
