@@ -28,20 +28,44 @@ def get(db):
     except Exception as e:
         return f"An Error Occurred: {e}"
 
+
 def update(db):
-    garage_ref = db.collection('Garages')
     try:
+        garage_ref = db.collection('Garages')
         id = request.json['id']
         garage_ref.document(id).update(request.json)
-        return jsonify({"success": True}), 200
+        return jsonify("Garage is updated successfully"), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return jsonify("ID is required"), 500
+
 
 def delete(db):
-    garage_ref = db.collection('Garages')
     try:
+        garage_ref = db.collection('Garages')
         id = request.json['id']
         garage_ref.document(id).delete()
-        return jsonify({"success": True}), 200
+        return jsonify("Garage is deleted successfully"), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return jsonify("ID is required"), 500
+
+
+def show_reviews_garage(db):
+    try:
+        review_ref = db.collection('Review')
+        garage_id = request.json['garageID']
+        reviews = review_ref.where(u'garageID', u'==', garage_id).stream()
+        result = [review.to_dict() for review in reviews]
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify("garageID is required"), 500
+
+
+def show_reviews_street(db):
+    try:
+        review_ref = db.collection('Review')
+        camera_id = request.json['cameraID']
+        reviews = review_ref.where(u'cameraID', u'==', camera_id).stream()
+        result = [review.to_dict() for review in reviews]
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify("cameraID is required"), 500
