@@ -2,6 +2,7 @@ from flask import Flask
 import model.model_app as model
 import owner_user.owner_app as owner
 import driver_user.driver_app as driver
+import driver_user.driver_app as driver
 import user.user_app as user
 import database.connect_database as db_connection
 
@@ -27,3 +28,15 @@ def update_garage():
 @app.route('/delete_garage', methods=['GET'])
 def delete_garage():
     return owner.delete(db)
+
+@app.route('/add_review', methods=['POST'])
+def add_review():
+    return driver.create(db)
+
+@app.route('/get_review', methods=['GET'])
+def get_review():
+    return driver.get(db)
+
+@app.route('/delete_review', methods=['GET'])
+def delete_review():
+    return driver.delete(db)

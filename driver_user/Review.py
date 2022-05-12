@@ -1,6 +1,3 @@
-from datetime import datetime
-
-
 class Review:
     id: str
     content: str

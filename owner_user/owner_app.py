@@ -1,11 +1,10 @@
 from pydoc import doc
 from flask import request, jsonify
-import firebase
 
 def create(db):
     try:
         doc_ref = db.collection(u'Garages').document()
-        garage = {"capacity": request.json['capacity'], "ownerId": request.json['ownerID'], "id": doc_ref.id,}
+        garage = {"capacity": request.json['capacity'], "ownerId": request.json['ownerID'], "id": doc_ref.id}
         doc_ref.set(garage)
         return jsonify({"success": True}), 200
     except Exception as e:
