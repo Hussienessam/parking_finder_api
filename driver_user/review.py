@@ -7,7 +7,6 @@ def create(db):
         review = {"id": review_ref.id, "content": request.json['content'], "date": dt.datetime.now(),
                   "cameraID": request.json['cameraID'], "driverID": request.json['driverID'],
                   "garageID": request.json['garageID']}
-        #request.json.update({'id': review_ref.id, 'date': str(dt.datetime.now())})
         validated, errors = validator.validate(validator.review_schema, review)
         if validated:
             review_ref.set(review)

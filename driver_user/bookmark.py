@@ -7,10 +7,9 @@ def create(db):
         bookmark_ref = db.collection('bookmark').document()
         bookmark = {"id": bookmark_ref.id, "name": request.json['name'], "driverID": request.json['driverID'],
                     "location": {'lat': request.json['location']['lat'], 'long': request.json['location']['long']}}
-        request.json.update({'id': bookmark_ref.id})
-        validated, errors = validator.validate(validator.bookmark_schema, request.json)
+        validated, errors = validator.validate(validator.bookmark_schema, bookmark)
         if validated:
-            bookmark_ref.set(request.json)
+            bookmark_ref.set(bookmark)
         else: return errors
 
         return jsonify({"success": True}), 200
