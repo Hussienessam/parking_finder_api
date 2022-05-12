@@ -1,10 +1,11 @@
+from pydoc import doc
 from flask import request, jsonify
 
 def create(db):
-    garage_ref = db.collection('Garages')
     try:
-        id = request.json['id']
-        garage_ref.document(id).set(request.json)
+        doc_ref = db.collection(u'Garages').document()
+        garage = {"capacity": request.json['capacity'], "ownerId": request.json['ownerID'], "id": doc_ref.id}
+        doc_ref.set(garage)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
