@@ -1,71 +1,29 @@
-from urllib.error import HTTPError
-import urllib.request
-from io import BytesIO
-from PIL import Image
-from flask import Flask, request, jsonify
-import os
+from flask import Flask
+import model.model_app as model
+import owner_user.owner_app as owner
+import driver_user.driver_app as driver
+import user.user_app as user
+import database.connect_database as db_connection
 
-import main
-
+db = db_connection.connect()
 app = Flask(__name__)
+
 @app.route('/find', methods=['POST'])
-
 def find():
-    input_path = 'local/image.png'
-    dir_path = './local/'
+    return model.find()
 
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
+@app.route('/add_garage', methods=['POST'])
+def add_garage():
+    return owner.create(db)
 
-    if(request.is_json):
-        content = request.get_json()
-        url = content['url']
-        capacity = content['capacity']
-    else:
-        url = request.form['url']
-        capacity = request.form['capacity']
-    
-    imageSaved, error = saveImage(input_path, url)
-    if(imageSaved):
-        spots = int(capacity) - main.model(input_path)
-        return jsonify(
-            spots = spots
-        )
+@app.route('/get_garage', methods=['GET'])
+def get_garage():
+    return owner.get(db)
 
-    else:
-        return error
+@app.route('/update_garage', methods=['GET'])
+def update_garage():
+    return owner.update(db)
 
-def saveImage(input_path, url):
-    formats = {
-        'image/jpeg': 'JPEG',
-        'image/png': 'PNG',
-        'image/gif': 'GIF',
-        'image/jpg': 'JPG',
-    }
-
-    imageSaved = True
-    error = ''
-
-    try:
-        response = urllib.request.urlopen(url)
-
-    except HTTPError as err:
-        imageSaved = False
-        error = 'File not found'
-        return imageSaved, error
-
-    image_type = response.info().get('Content-Type')
-
-
-    try:
-        format = formats[image_type]
-
-    except KeyError:
-        imageSaved  = False
-        error = 'Not a supported image format'
-        return imageSaved, error
-
-    file = BytesIO(response.read())
-    img = Image.open(file)
-    img.save(input_path, format=format)
-    return imageSaved, error
+@app.route('/delete_garage', methods=['GET'])
+def delete_garage():
+    return owner.delete(db)
