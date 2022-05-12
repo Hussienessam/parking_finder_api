@@ -18,37 +18,15 @@ def create(db):
 
 
 def get(db):
-    global key
     bookmark_ref = db.collection('bookmark')
     try:
         bookmark_id = request.args.get('id')
         if bookmark_id:
-            result = bookmark_ref.document(bookmark_id).get().to_dict()
-            record = {}
-            for key in result:
-                if isinstance(result[key], GeoPoint):
-                    record[key] = str(result[key].latitude) + ',' + str(result[key].longitude)
-                    continue
-                record[key] = result[key]
-
-                record['key'] = result[key]
-            return jsonify(record), 200
-
+            bookmark = bookmark_ref.document(bookmark_id).get()
+            return jsonify(bookmark.to_dict()), 200
         else:
-            b = bookmark_ref.stream()
-            all = []
-            for e in b:
-                record = {}
-                result = e.to_dict()
-                for key in result:
-                    if isinstance(result[key], GeoPoint):
-                        record[key] = str(result[key].latitude) + ',' + str(result[key].longitude)
-                        continue
-                    record[key] = result[key]
-
-                    record['key'] = result[key]
-                all.append(record)
-            return jsonify(all), 200
+            all_bookmarks = [doc.to_dict() for doc in bookmark_ref.stream()]
+            return jsonify(all_bookmarks), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
