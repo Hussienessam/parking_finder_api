@@ -1,14 +1,16 @@
+import imp
 import json
 from pydoc import doc
 from flask import request, jsonify
+import owner_user.validator as v
 
 def create(db):
     try:
         doc_ref = db.collection(u'Garages').document()
-        json_request = json.loads(request.data)
-        capacity = request.json['capacity'] if 'capacity' in json_request else -1
-        garage = {"capacity": capacity, "ownerId": request.json['ownerID'], "id": doc_ref.id}
-        doc_ref.set(garage)
+        # garage = {"capacity": capacity, "ownerId": request.json['ownerID'], "id": doc_ref.id}
+        request.json.update({'id': doc_ref.id})
+        doc_ref.set(request.json)
+        # v.validate(request.json)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"

@@ -1,6 +1,6 @@
 from cerberus import Validator
 
-garage_schema = {
+create_garage_schema = {
     'id': {'type': 'string', 'required': True}, 
     'capacity': {'type': 'integer', 'required': True},
     'cameraIDs': { 'type': 'list', 'required': True},
@@ -17,6 +17,5 @@ garage_schema = {
 # }
 
 def validate(document): 
-    
     v = Validator(garage_schema)
     return v.validate(document), v.errors
