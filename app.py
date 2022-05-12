@@ -28,6 +28,10 @@ def update_garage():
 def delete_garage():
     return owner.delete(db)
 
-@app.route('/show_reviews', methods=['GET'])
-def show_reviews():
-    return owner.show_reviews(db)
+@app.route('/show_reviews_garage', methods=['GET'])
+def show_reviews_garage():
+    return owner.show_reviews_garage(db)
+
+@app.route('/show_reviews_street', methods=['GET'])
+def show_reviews_street():
+    return owner.show_reviews_street(db)
