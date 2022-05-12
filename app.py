@@ -1,8 +1,8 @@
 from flask import Flask
 import model.model_app as model
 import owner_user.owner_app as owner
-import driver_user.driver_app as driver
-import driver_user.driver_app as driver
+import driver_user.review as review
+import driver_user.bookmark as bookmark
 import user.user_app as user
 import database.connect_database as db_connection
 
@@ -29,14 +29,28 @@ def update_garage():
 def delete_garage():
     return owner.delete(db)
 
+
 @app.route('/add_review', methods=['POST'])
 def add_review():
-    return driver.create(db)
+    return review.create(db)
 
 @app.route('/get_review', methods=['GET'])
 def get_review():
-    return driver.get(db)
+    return review.get(db)
 
 @app.route('/delete_review', methods=['GET'])
 def delete_review():
-    return driver.delete(db)
+    return review.delete(db)
+
+
+@app.route('/add_bookmark', methods=['POST'])
+def add_bookmark():
+    return bookmark.create(db)
+
+@app.route('/get_bookmark', methods=['GET'])
+def get_bookmark():
+    return bookmark.get(db)
+
+@app.route('/delete_bookmark', methods=['GET'])
+def delete_bookmark():
+    return bookmark.delete(db)
