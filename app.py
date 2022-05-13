@@ -44,7 +44,22 @@ def update_name():
     return user.update_name()
 
 
-@app.route('/get_by_mail', methods=['GET'])
+@app.route('/update_email', methods=['POST'])
+def update_email():
+    return user.update_email()
+
+
+@app.route('/update_password', methods=['POST'])
+def update_password():
+    return user.update_password()
+
+
+@app.route('/update_number', methods=['POST'])
+def update_number():
+    return user.update_number()
+
+
+@app.route('/get_by_email', methods=['GET'])
 def get_by_mail():
     return user.get_by_mail()
 
@@ -54,8 +69,9 @@ def get_by_id():
     return user.get_by_id()
 
 
-@app.route('/get_by_number', methods=['GET'])
-def get_by_number():
-    return user.get_by_number()
+#@app.route('/log_in', methods=['GET'])
+def log_in(n,p):
+    return user.log_in(n,p,db)
 
+print(log_in("nada123@gmail.com","nadahossam"))
 
