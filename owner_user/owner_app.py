@@ -17,16 +17,18 @@ def create(db):
 def get(db):
     garage_ref = db.collection('Garages')
     try:
-        garage_id = request.json['id']
-        if garage_id:
-            if garage_ref.document(garage_id).get().exists :
-                garage = garage_ref.document(garage_id).get()
-                return jsonify(garage.to_dict()), 200
-            else :
-                return "document doesn't exist"
+        if 'id' in request.form:
+            garage_id = request.json['id']
+            if garage_id:
+                if garage_ref.document(garage_id).get().exists :
+                    garage = garage_ref.document(garage_id).get()
+                    return jsonify(garage.to_dict()), 200
+                else :
+                    return "document doesn't exist"
         else:
             all_garages = [doc.to_dict() for doc in garage_ref.stream()]
             return jsonify(all_garages), 200
+        
     except Exception as e:
         return f"An Error Occurred: {e}"
 
