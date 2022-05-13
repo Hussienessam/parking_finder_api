@@ -17,7 +17,7 @@ def create(db):
 def get(db):
     garage_ref = db.collection('Garages')
     try:
-        if 'id' in request.form:
+        if request.json:
             garage_id = request.json['id']
             if garage_id:
                 if garage_ref.document(garage_id).get().exists :
