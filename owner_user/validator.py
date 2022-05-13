@@ -1,21 +1,17 @@
 from cerberus import Validator
 
-create_garage_schema = {
-    'id': {'type': 'string', 'required': True}, 
-    'capacity': {'type': 'integer', 'required': True},
-    'cameraIDs': { 'type': 'list', 'required': True},
-    'location': { 'type': 'list', 'items': [{'type': 'string'}, {'type': 'string'}], 'required': True},
-    'ownerID': {'type': 'integer', 'required': True}
-}
+def built_schema(required):
+    garage_schema = {
+        'id': {'type': 'string', 'required': True}, 
+        'capacity': {'type': 'integer', 'required': bool(required)},
+        'cameraIDs': { 'type': 'list', 'required': bool(required)},
+        'location': { 'type': 'list', 'items': [{'type': 'string'}, {'type': 'string'}],
+         'required': bool(required)},
+        'ownerID': {'type': 'integer', 'required': bool(required)}
+    }
+    return garage_schema
 
-update_garage_schema = {
-    'id': {'type': 'string', 'required': True}, 
-    'capacity': {'type': 'integer'},
-    'cameraIDs': { 'type': 'list'},
-    'location': { 'type': 'list', 'items': [{'type': 'string'}, {'type': 'string'}]},
-    'ownerID': {'type': 'integer'}
-}
-
-def validate(document, schema): 
+def validate(document, required): 
+    schema = built_schema(required)
     v = Validator(schema)
     return v.validate(document), v.errors
