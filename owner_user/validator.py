@@ -8,14 +8,6 @@ create_garage_schema = {
     'ownerID': {'type': 'integer', 'required': True}
 }
 
-# document = {
-#     'id': 'john doe',
-#     'capacity': 3,
-#     'cameraIDs': ['0','1'],
-#     'location': ['de', 'do'],
-#     'ownerID': 2
-# }
-
 def validate(document): 
-    v = Validator(garage_schema)
+    v = Validator(create_garage_schema)
     return v.validate(document), v.errors
