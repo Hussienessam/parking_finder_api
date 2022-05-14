@@ -1,17 +1,17 @@
 from cerberus import Validator
 
-def built_schema(required):
+def built_schema(is_required):
     garage_schema = {
         'id': {'type': 'string', 'required': True}, 
-        'capacity': {'type': 'integer', 'required': bool(required)},
-        'cameraIDs': { 'type': 'list', 'required': bool(required)},
+        'capacity': {'type': 'integer', 'required': is_required},
+        'cameraIDs': { 'type': 'list', 'required': is_required},
         'location': { 'type': 'list', 'items': [{'type': 'string'}, {'type': 'string'}],
-         'required': bool(required)},
-        'ownerID': {'type': 'integer', 'required': bool(required)}
+         'required': is_required},
+        'ownerID': {'type': 'integer', 'required': is_required}
     }
     return garage_schema
 
-def validate(document, required): 
-    schema = built_schema(required)
+def validate(document, is_required): 
+    schema = built_schema(is_required)
     v = Validator(schema)
     return v.validate(document), v.errors

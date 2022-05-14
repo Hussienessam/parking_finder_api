@@ -5,7 +5,7 @@ def create(db):
     try:
         doc_ref = db.collection('Garages').document()
         request.json.update({'id': doc_ref.id})
-        validated, errors = validator.validate(request.json, required="true")
+        validated, errors = validator.validate(request.json, is_required=True)
         if validated:
             doc_ref.set(request.json)
             return jsonify("Garage is added successfully"), 200
@@ -35,7 +35,7 @@ def get(db):
 def update(db):
     try:
         garage_ref = db.collection('Garages')
-        validated, errors = validator.validate(request.json, required="")
+        validated, errors = validator.validate(request.json, is_required=False)
         if validated:
             id = request.json['id']
             if garage_ref.document(id).get().exists :
