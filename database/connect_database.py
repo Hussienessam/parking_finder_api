@@ -7,4 +7,3 @@ def connect():
     default_app = initialize_app(cred)
     db = firestore.client()
     return db
-

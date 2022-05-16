@@ -1,31 +1,40 @@
 from flask import request, jsonify
 from firebase_admin import auth
-import pyrebase as r
+import database.connect2 as db_connection
 
-def sign_up():
+auth2=db_connection.connect2()
+
+
+
+def sign_up(db):
     name = request.json['name']
     email = request.json['email']
     password = request.json['password']
     number = request.json['number']
+    is_owner = request.json['is_owner']
     try :
         user = auth.create_user(email=email,
                                 password=password,
                                 phone_number=number,
                                 display_name=name,
                                 )
+        doc_ref = db.collection(u'Owner').document()
+        own = {"email":email, "is_owner":is_owner}
+        doc_ref.set(own)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
-#
-# def log_in(n,p,db):
-#     #password = request.json['password']
-#     #email = request.json['email']
-#     try:
-#         ad=r.initialize_app(db).auth().sign_in_with_email_and_password(n,p)
-#         return jsonify({"success": True}), 200
-#     except Exception as e:
-#         return f"An Error Occurred: {e}"
+
+
+def log_in():
+    password = request.json['password']
+    email = request.json['email']
+    try:
+        user=auth2.sign_in_with_email_and_password(email,password)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return f"An Error Occurred: {e}"
 
 
 def update_name():

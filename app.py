@@ -5,7 +5,7 @@ import user.user_app as user
 import database.connect_database as db_connection
 from firebase_admin import auth
 
-db = db_connection.connect()
+db= db_connection.connect()
 app = Flask(__name__)
 
 
@@ -36,7 +36,7 @@ def delete_garage():
 
 @app.route('/sign_up', methods=['POST'])
 def sign_up():
-    return user.sign_up()
+    return user.sign_up(db)
 
 
 @app.route('/update_name', methods=['POST'])
@@ -69,9 +69,8 @@ def get_by_id():
     return user.get_by_id()
 
 
-#@app.route('/log_in', methods=['GET'])
-def log_in(n,p):
-    return user.log_in(n,p,db)
+@app.route('/log_in', methods=['GET'])
+def log_in():
+    return user.log_in()
 
-print(log_in("nada123@gmail.com","nadahossam"))
 
