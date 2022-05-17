@@ -7,6 +7,7 @@ import os
 
 import model.Model as Model
 
+
 def find():
     input_path = 'local/image.png'
     dir_path = './local/'
@@ -21,15 +22,16 @@ def find():
     else:
         url = request.form['url']
         capacity = request.form['capacity']
-    
+
     imageSaved, error = saveImage(input_path, url)
     if(imageSaved):
         spots = int(capacity) - Model.model(input_path)
         return jsonify(
-            spots = spots
+            spots=spots
         )
     else:
         return error
+
 
 def saveImage(input_path, url):
     formats = {
@@ -52,12 +54,11 @@ def saveImage(input_path, url):
 
     image_type = response.info().get('Content-Type')
 
-
     try:
         format = formats[image_type]
 
     except KeyError:
-        imageSaved  = False
+        imageSaved = False
         error = 'Not a supported image format'
         return imageSaved, error
 

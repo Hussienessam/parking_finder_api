@@ -1,16 +1,18 @@
 from flask import request, jsonify
-from google.cloud.firestore import GeoPoint
 import driver_user.validator as validator
+
 
 def create(db):
     try:
         bookmark_ref = db.collection('bookmark').document()
         bookmark = {"id": bookmark_ref.id, "name": request.json['name'], "driverID": request.json['driverID'],
                     "location": {'lat': request.json['location']['lat'], 'long': request.json['location']['long']}}
-        validated, errors = validator.validate(validator.bookmark_schema, bookmark)
+        validated, errors = validator.validate(
+            validator.bookmark_schema, bookmark)
         if validated:
             bookmark_ref.set(bookmark)
-        else: return errors
+        else:
+            return errors
 
         return jsonify({"success": True}), 200
     except Exception as e:

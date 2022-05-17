@@ -1,9 +1,8 @@
 from flask import request, jsonify
 from firebase_admin import auth
-import database.connect2 as db_connection
+import database.login_connect as db_connection
 
-auth2=db_connection.connect2()
-
+login_auth = db_connection.connect()
 
 
 def sign_up(db):
@@ -12,26 +11,25 @@ def sign_up(db):
     password = request.json['password']
     number = request.json['number']
     is_owner = request.json['is_owner']
-    try :
+    try:
         user = auth.create_user(email=email,
                                 password=password,
                                 phone_number=number,
                                 display_name=name,
                                 )
         doc_ref = db.collection(u'Owner')
-        own = {"email":email, "is_owner":is_owner}
+        own = {"email": email, "is_owner": is_owner}
         doc_ref.document(user.uid).set(own)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
 
-
 def log_in():
     password = request.json['password']
     email = request.json['email']
     try:
-        user=auth2.sign_in_with_email_and_password(email,password)
+        user = login_auth.sign_in_with_email_and_password(email, password)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
@@ -42,8 +40,8 @@ def update_name():
     email = request.json['email']
     try:
         user = auth.get_user_by_email(email)
-        id = user.uid;
-        auth.update_user(id,display_name=name)
+        id = user.uid
+        auth.update_user(id, display_name=name)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
@@ -51,11 +49,11 @@ def update_name():
 
 def update_email():
     email = request.json['email']
-    new_email=request.json['newemail']
+    new_email = request.json['newemail']
     try:
         user = auth.get_user_by_email(email)
-        id=user.uid;
-        auth.update_user(id,email=new_email)
+        id = user.uid
+        auth.update_user(id, email=new_email)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
@@ -66,8 +64,8 @@ def update_number():
     email = request.json['email']
     try:
         user = auth.get_user_by_email(email)
-        id = user.uid;
-        auth.update_user(id,phone_number=number)
+        id = user.uid
+        auth.update_user(id, phone_number=number)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
@@ -78,8 +76,8 @@ def update_password():
     email = request.json['email']
     try:
         user = auth.get_user_by_email(email)
-        id = user.uid;
-        auth.update_user(id,password=newpass)
+        id = user.uid
+        auth.update_user(id, password=newpass)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
@@ -89,7 +87,7 @@ def get_by_mail():
     email = request.json['email']
     try:
         user = auth.get_user_by_email(email)
-        return jsonify({'id':user.uid , 'name':user.display_name,'email':user.email,'number':user.phone_number}), 200
+        return jsonify({'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
@@ -98,6 +96,6 @@ def get_by_id():
     id = request.json['id']
     try:
         user = auth.get_user(id)
-        return jsonify({'id':user.uid , 'name':user.display_name,'email':user.email,'number':user.phone_number}), 200
+        return jsonify({'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"

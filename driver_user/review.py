@@ -1,6 +1,8 @@
 from flask import request, jsonify
 import datetime as dt
 import driver_user.validator as validator
+
+
 def create(db):
     try:
         review_ref = db.collection(u'Review').document()
@@ -10,7 +12,8 @@ def create(db):
         validated, errors = validator.validate(validator.review_schema, review)
         if validated:
             review_ref.set(review)
-        else: return errors
+        else:
+            return errors
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"

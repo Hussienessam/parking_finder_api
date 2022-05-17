@@ -1,6 +1,7 @@
 from flask import request, jsonify
 import owner_user.validator as validator
 
+
 def create(db):
     try:
         doc_ref = db.collection('Garages').document()
@@ -14,23 +15,25 @@ def create(db):
     except Exception as e:
         return f"An Error Occurred: {e}"
 
+
 def get(db):
     garage_ref = db.collection('Garages')
     try:
         if request.json:
             garage_id = request.json['id']
             if garage_id:
-                if garage_ref.document(garage_id).get().exists :
+                if garage_ref.document(garage_id).get().exists:
                     garage = garage_ref.document(garage_id).get()
                     return jsonify(garage.to_dict()), 200
-                else :
+                else:
                     return "document doesn't exist"
         else:
             all_garages = [doc.to_dict() for doc in garage_ref.stream()]
             return jsonify(all_garages), 200
-        
+
     except Exception as e:
         return f"An Error Occurred: {e}"
+
 
 def update(db):
     try:
@@ -38,27 +41,29 @@ def update(db):
         validated, errors = validator.validate(request.json, is_required=False)
         if validated:
             id = request.json['id']
-            if garage_ref.document(id).get().exists :
+            if garage_ref.document(id).get().exists:
                 garage_ref.document(id).update(request.json)
                 return jsonify("Garage is updated successfully"), 200
-            else :
+            else:
                 return "document doesn't exist"
         else:
             return errors
     except Exception as e:
         return f"An Error Occurred: {e}"
 
+
 def delete(db):
     try:
         garage_ref = db.collection('Garages')
         id = request.json['id']
-        if garage_ref.document(id).get().exists :
+        if garage_ref.document(id).get().exists:
             garage_ref.document(id).delete()
             return jsonify("Garage is deleted successfully"), 200
-        else :
+        else:
             return "document doesn't exist"
     except Exception as e:
         return f"An Error Occurred: {e}"
+
 
 def show_garage_reviews(db):
     try:
@@ -66,9 +71,10 @@ def show_garage_reviews(db):
         garage_id = request.json['garageID']
         reviews = review_ref.where('garageID', '==', garage_id).stream()
         result = [review.to_dict() for review in reviews]
-        return jsonify(result), 200    
+        return jsonify(result), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
+
 
 def show_street_reviews(db):
     try:
@@ -80,6 +86,7 @@ def show_street_reviews(db):
     except Exception as e:
         return f"An Error Occurred: {e}"
 
+
 def get_owner_garages(db):
     try:
         garage_ref = db.collection('Garages')
@@ -89,4 +96,3 @@ def get_owner_garages(db):
         return jsonify(response), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
-    
