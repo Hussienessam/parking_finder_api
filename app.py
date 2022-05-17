@@ -20,10 +20,22 @@ def add_garage():
 def get_garage():
     return owner.get(db)
 
-@app.route('/update_garage', methods=['GET'])
+@app.route('/update_garage', methods=['POST', 'PUT'])
 def update_garage():
     return owner.update(db)
 
-@app.route('/delete_garage', methods=['GET'])
+@app.route('/delete_garage', methods=['GET', 'DELETE'])
 def delete_garage():
     return owner.delete(db)
+
+@app.route('/show_garage_reviews', methods=['GET'])
+def show_garage_reviews():
+    return owner.show_garage_reviews(db)
+
+@app.route('/show_street_reviews', methods=['GET'])
+def show_street_reviews():
+    return owner.show_street_reviews(db)
+
+@app.route('/get_owner_garages', methods=['GET'])
+def get_owner_garages():
+    return owner.get_owner_garages(db)
