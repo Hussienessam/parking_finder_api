@@ -23,7 +23,6 @@ def add_garage():
 def get_garage():
     return owner.get(db)
 
-
 @app.route('/update_garage', methods=['GET'])
 def update_garage():
     return owner.update(db)
@@ -33,7 +32,18 @@ def update_garage():
 def delete_garage():
     return owner.delete(db)
 
+@app.route('/show_garage_reviews', methods=['GET'])
+def show_garage_reviews():
+    return owner.show_garage_reviews(db)
 
+@app.route('/show_street_reviews', methods=['GET'])
+def show_street_reviews():
+    return owner.show_street_reviews(db)
+
+@app.route('/get_owner_garages', methods=['GET'])
+def get_owner_garages():
+    return owner.get_owner_garages(db)
+  
 @app.route('/sign_up', methods=['POST'])
 def sign_up():
     return user.sign_up(db)
@@ -58,7 +68,7 @@ def update_password():
 def update_number():
     return user.update_number()
 
-
+  
 @app.route('/get_by_email', methods=['GET'])
 def get_by_mail():
     return user.get_by_mail()
@@ -72,5 +82,4 @@ def get_by_id():
 @app.route('/log_in', methods=['GET'])
 def log_in():
     return user.log_in()
-
 
