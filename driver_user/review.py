@@ -22,13 +22,18 @@ def create(db):
 def get(db):
     review_ref = db.collection('Review')
     try:
-        review_id = request.args.get('id')
-        if review_id:
-            review = review_ref.document(review_id).get()
-            return jsonify(review.to_dict()), 200
+        if request.json:
+            review_id = request.json['id']
+            if review_id:
+                if review_ref.document(review_id).get().exists:
+                    review = review_ref.document(review_id).get()
+                    return jsonify(review.to_dict()), 200
+                else:
+                    return "document doesn't exist"
         else:
-            all_reviews = [doc.to_dict() for doc in review_ref.stream()]
+            all_reviews= [doc.to_dict() for doc in review_ref.stream()]
             return jsonify(all_reviews), 200
+
     except Exception as e:
         return f"An Error Occurred: {e}"
 
@@ -37,7 +42,10 @@ def delete(db):
     review_ref = db.collection('Review')
     try:
         review_id = request.json['id']
-        review_ref.document(review_id).delete()
-        return jsonify({"success": True}), 200
+        if review_ref.document(review_id).get().exists:
+            review_ref.document(review_id).delete()
+            return jsonify({"success": True}), 200
+        else:
+            return "document doesn't exist"
     except Exception as e:
         return f"An Error Occurred: {e}"

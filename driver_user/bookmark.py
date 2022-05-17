@@ -22,13 +22,18 @@ def create(db):
 def get(db):
     bookmark_ref = db.collection('bookmark')
     try:
-        bookmark_id = request.args.get('id')
-        if bookmark_id:
-            bookmark = bookmark_ref.document(bookmark_id).get()
-            return jsonify(bookmark.to_dict()), 200
+        if request.json:
+            bookmark_id = request.json['id']
+            if bookmark_id:
+                if bookmark_ref.document(bookmark_id).get().exists:
+                    bookmark = bookmark_ref.document(bookmark_id).get()
+                    return jsonify(bookmark.to_dict()), 200
+                else:
+                    return "document doesn't exist"
         else:
             all_bookmarks = [doc.to_dict() for doc in bookmark_ref.stream()]
             return jsonify(all_bookmarks), 200
+
     except Exception as e:
         return f"An Error Occurred: {e}"
 
@@ -37,7 +42,10 @@ def delete(db):
     bookmark_ref = db.collection('bookmark')
     try:
         bookmark_id = request.json['id']
-        bookmark_ref.document(bookmark_id).delete()
-        return jsonify({"success": True}), 200
+        if bookmark_ref.document(bookmark_id).get().exists:
+            bookmark_ref.document(bookmark_id).delete()
+            return jsonify({"success": True}), 200
+        else:
+            return "document doesn't exist"
     except Exception as e:
         return f"An Error Occurred: {e}"
