@@ -7,7 +7,6 @@ import database.connect_database as db_connection
 
 db = db_connection.connect()
 app = Flask(__name__)
-collection = ""
 
 @app.route('/find', methods=['POST'])
 def find():
