@@ -5,7 +5,7 @@ from PIL import Image
 from flask import request, jsonify
 import os
 
-import model.Model as Model
+import model.cv_model as cv_model
 
 
 def find():
@@ -25,7 +25,7 @@ def find():
 
     imageSaved, error = saveImage(input_path, url)
     if(imageSaved):
-        spots = int(capacity) - Model.model(input_path)
+        spots = int(capacity) - cv_model.model(input_path)
         return jsonify(
             spots=spots
         )

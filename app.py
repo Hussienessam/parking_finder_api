@@ -1,89 +1,52 @@
 from flask import Flask
 import model.model_app as model
-import owner_user.owner_app as owner
-import driver_user.review as review
-import driver_user.bookmark as bookmark
+import user_operations.user_operations_app as user_operations
+import user_operations.user_queries_app as user_queires
 import user.user_app as user
 import database.connect_database as db_connection
 
 db = db_connection.connect()
 app = Flask(__name__)
+collection = ""
 
-
-# Garage Operations
 @app.route('/find', methods=['POST'])
 def find():
     return model.find()
 
 
-@app.route('/add_garage', methods=['POST'])
-def add_garage():
-    return owner.create(db)
+@app.route('/<string:collection>/add', methods=['POST'])
+def add_garage(collection):
+    return user_operations.create(collection, db)
 
 
-@app.route('/get_garage', methods=['GET'])
-def get_garage():
-    return owner.get(db)
+@app.route('/<string:collection>/get', methods=['GET'])
+def get_garage(collection):
+    return user_operations.get(collection, db)
 
 
-@app.route('/update_garage', methods=['GET'])
-def update_garage():
-    return owner.update(db)
+@app.route('/<string:collection>/update', methods=['PUT'])
+def update_garage(collection):
+    return user_operations.update(collection, db)
 
 
-@app.route('/delete_garage', methods=['GET'])
-def delete_garage():
-    return owner.delete(db)
+@app.route('/<string:collection>/delete', methods=['DELETE'])
+def delete_garage(collection):
+    return user_operations.delete(collection, db)
 
 
 @app.route('/show_garage_reviews', methods=['GET'])
 def show_garage_reviews():
-    return owner.show_garage_reviews(db)
+    return user_queires.show_garage_reviews(db)
 
 
 @app.route('/show_street_reviews', methods=['GET'])
 def show_street_reviews():
-    return owner.show_street_reviews(db)
+    return user_queires.show_street_reviews(db)
 
 
 @app.route('/get_owner_garages', methods=['GET'])
 def get_owner_garages():
-    return owner.get_owner_garages(db)
-
-
-@app.route('/add_review', methods=['POST'])
-def add_review():
-    return review.create(db)
-
-
-@app.route('/get_review', methods=['GET'])
-def get_review():
-    return review.get(db)
-
-
-@app.route('/delete_review', methods=['GET'])
-def delete_review():
-    return review.delete(db)
-
-# Driver Operations
-
-
-@app.route('/add_bookmark', methods=['POST'])
-def add_bookmark():
-    return bookmark.create(db)
-
-
-@app.route('/get_bookmark', methods=['GET'])
-def get_bookmark():
-    return bookmark.get(db)
-
-
-@app.route('/delete_bookmark', methods=['GET'])
-def delete_bookmark():
-    return bookmark.delete(db)
-
-# User Operations
-
+    return user_queires.get_owner_garages(db)
 
 @app.route('/sign_up', methods=['POST'])
 def sign_up():
