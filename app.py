@@ -14,22 +14,22 @@ def find():
 
 
 @app.route('/<string:collection>/add', methods=['POST'])
-def add_garage(collection):
+def add_document(collection):
     return user_operations.create(collection, db)
 
 
 @app.route('/<string:collection>/get', methods=['GET'])
-def get_garage(collection):
+def get_document(collection):
     return user_operations.get(collection, db)
 
 
 @app.route('/<string:collection>/update', methods=['PUT'])
-def update_garage(collection):
+def update_document(collection):
     return user_operations.update(collection, db)
 
 
 @app.route('/<string:collection>/delete', methods=['DELETE'])
-def delete_garage(collection):
+def delete_document(collection):
     return user_operations.delete(collection, db)
 
 
