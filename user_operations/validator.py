@@ -2,6 +2,13 @@ from cerberus import Validator
 
 
 def built_schema(collection, is_required):
+    camera_schema = {
+        'id': {'type': 'string', 'required': True},
+        'address': {'type': 'string', 'required': is_required},
+        'lat': {'type': 'string', 'required': is_required},
+        'long': {'type': 'string', 'required': is_required}
+    }
+
     garage_schema = {
         'id': {'type': 'string', 'required': True},
         'capacity': {'type': 'integer', 'required': is_required},
@@ -29,6 +36,9 @@ def built_schema(collection, is_required):
                                                 'long': {'type': 'string', 'required': is_required}}, 
                                                 'required': is_required}
     }
+
+    if collection == "Camera":
+        return camera_schema
 
     if collection == "Garage":
         return garage_schema
