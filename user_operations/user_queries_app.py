@@ -24,9 +24,19 @@ def show_street_reviews(db):
 
 def get_owner_garages(db):
     try:
-        garage_ref = db.collection('Garages')
+        garage_ref = db.collection('Garage')
         ownerID = request.json['ownerID']
         docs = garage_ref.where('ownerID', '==', ownerID).stream()
+        response = [doc.to_dict() for doc in docs]
+        return jsonify(response), 200
+    except Exception as e:
+        return f"An Error Occurred: {e}"
+
+def get_user_bookmark(db):
+    try:
+        bookmark_ref = db.collection('Bookmark')
+        driverID = request.args.get('driverID')
+        docs = bookmark_ref.where('driverID', '==', driverID).stream()
         response = [doc.to_dict() for doc in docs]
         return jsonify(response), 200
     except Exception as e:

@@ -13,6 +13,7 @@ def built_schema(collection, is_required):
     garage_schema = {
         'id': {'type': 'string', 'required': True},
         'capacity': {'type': 'integer', 'required': is_required},
+        'address': {'type': 'string', 'required': is_required},
         'cameraIDs': {'type': 'list', 'required': is_required},
         'location': {'type': 'dict', 'schema': {'lat': {'type': 'string', 'required': is_required},
                                                 'long': {'type': 'string', 'required': is_required}}, 

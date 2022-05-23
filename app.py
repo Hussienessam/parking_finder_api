@@ -47,6 +47,12 @@ def show_street_reviews():
 def get_owner_garages():
     return user_queires.get_owner_garages(db)
 
+
+@app.route('/get_user_bookmark', methods=['GET'])
+def get_user_bookmark():
+    return user_queires.get_user_bookmark(db)
+
+
 @app.route('/sign_up', methods=['POST'])
 def sign_up():
     return user.sign_up(db)
