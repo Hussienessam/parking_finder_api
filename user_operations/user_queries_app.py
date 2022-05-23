@@ -14,7 +14,7 @@ def show_garage_reviews(db):
 def show_street_reviews(db):
     try:
         review_ref = db.collection('Review')
-        camera_id = request.json['cameraID']
+        camera_id = request.args.get('cameraID')
         reviews = review_ref.where('cameraID', '==', camera_id).stream()
         result = [review.to_dict() for review in reviews]
         return jsonify(result), 200

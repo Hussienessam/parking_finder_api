@@ -1,7 +1,7 @@
 from flask import Flask
 import model.model_app as model
 import user_operations.user_operations_app as user_operations
-import user_operations.user_queries_app as user_queires
+import user_operations.user_queries_app as user_queries
 import user.user_app as user
 import database.connect_database as db_connection
 
@@ -35,22 +35,22 @@ def delete_document(collection):
 
 @app.route('/show_garage_reviews', methods=['GET'])
 def show_garage_reviews():
-    return user_queires.show_garage_reviews(db)
+    return user_queries.show_garage_reviews(db)
 
 
 @app.route('/show_street_reviews', methods=['GET'])
 def show_street_reviews():
-    return user_queires.show_street_reviews(db)
+    return user_queries.show_street_reviews(db)
 
 
 @app.route('/get_owner_garages', methods=['GET'])
 def get_owner_garages():
-    return user_queires.get_owner_garages(db)
+    return user_queries.get_owner_garages(db)
 
 
 @app.route('/get_user_bookmark', methods=['GET'])
 def get_user_bookmark():
-    return user_queires.get_user_bookmark(db)
+    return user_queries.get_user_bookmark(db)
 
 
 @app.route('/sign_up', methods=['POST'])
