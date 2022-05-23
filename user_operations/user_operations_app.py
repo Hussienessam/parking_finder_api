@@ -32,19 +32,17 @@ def create(collection_ref, db):
 
 def get(collection_ref, db):
     try:
-        
         doc_ref = db.collection(collection_ref)
         if len(doc_ref.get()) != 0:    
-            if request.json:
-                doc_id = request.json['id']
 
-                if doc_id:
-                    if doc_ref.document(doc_id).get().exists:
-                        doc = doc_ref.document(doc_id).get()
-                        return jsonify(doc.to_dict()), 200
+            doc_id = request.args.get('id')
+            if doc_id:
+                if doc_ref.document(doc_id).get().exists:
+                    doc = doc_ref.document(doc_id).get()
+                    return jsonify(doc.to_dict()), 200
 
-                    else:
-                        return "document doesn't exist"
+                else:
+                    return "document doesn't exist"
             else:
                 all_docs = [doc.to_dict() for doc in doc_ref.stream()]
                 return jsonify(all_docs), 200
