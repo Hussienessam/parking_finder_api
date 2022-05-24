@@ -10,18 +10,16 @@ def sign_up(db):
     password = request.json['password']
     number = request.json['number']
     is_owner = request.json['is_owner']
-    try:
+    try :
         user = auth.create_user(email=email,
                                 password=password,
                                 phone_number=number,
                                 display_name=name,
                                 )
         doc_ref = db.collection(u'Owner')
-        own = {"email": email, "is_owner": is_owner}
+        own = {"email":email, "is_owner":is_owner}
         doc_ref.document(user.uid).set(own)
-        user = auth.get_user(id)
-        return jsonify(
-            {'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}), 200
+        return jsonify({"name":user.uid ,"email":user.email,"id":user.uid,"number":user.phone_number}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
