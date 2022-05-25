@@ -25,7 +25,7 @@ def show_street_reviews(db):
 def get_owner_garages(db):
     try:
         garage_ref = db.collection('Garage')
-        ownerID = request.json['ownerID']
+        ownerID = request.args.get('ownerID')
         docs = garage_ref.where('ownerID', '==', ownerID).stream()
         response = [doc.to_dict() for doc in docs]
         return jsonify(response), 200
