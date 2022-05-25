@@ -41,3 +41,17 @@ def get_user_bookmark(db):
         return jsonify(response), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
+
+def validate_unique_bookmark(db, document):
+    try:
+        bookmark_ref = db.collection('Bookmark')
+        bookmark_location = document['location']
+        driver_id = document['driverID']
+        docs = bookmark_ref.where('driverID', '==', driver_id).stream()
+        for doc in docs:
+            doc = doc.to_dict()
+            if(bookmark_location == doc['location']):
+                return False
+        return True
+    except Exception as e:
+        return f"An Error Occurred: {e}"

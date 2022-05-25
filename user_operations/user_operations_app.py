@@ -14,7 +14,7 @@ def create(collection_ref, db):
             if collection_ref == "Review":
                 request.json.update({'date': dt.datetime.now()})
 
-            validated, errors = validator.validate(
+            validated, errors = validator.validate(db,
                 request.json, collection_ref, is_required=True)
 
             if validated:

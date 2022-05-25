@@ -1,5 +1,5 @@
 from cerberus import Validator
-
+import user_operations.user_queries_app as user_queries
 
 def built_schema(collection, is_required):
     camera_schema = {
@@ -51,8 +51,20 @@ def built_schema(collection, is_required):
     elif collection == "Bookmark":
         return bookmark_schema
 
+def unique_validation(db, document, collection):
+    if collection == "Bookmark":
+        is_unique = user_queries.validate_unique_bookmark(db, document)
+        if is_unique:
+            return True, ""
+        else:
+            return False, "Bookmark previously added"
 
-def validate(document, collection, is_required):
+def validate(db, document, collection, is_required):
     schema = built_schema(collection, is_required)
     v = Validator(schema)
-    return v.validate(document), v.errors
+    validated = v.validate(document)
+    if validated:
+        unique_validated, error = unique_validation(db, document, collection)
+        return unique_validated, error
+    else:
+        return validated, v.errors
