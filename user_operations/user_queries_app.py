@@ -3,7 +3,7 @@ from flask import request, jsonify
 def show_garage_reviews(db):
     try:
         review_ref = db.collection('Review')
-        garage_id = request.json['garageID']
+        garage_id = request.args.get('garageID')
         reviews = review_ref.where('garageID', '==', garage_id).stream()
         result = [review.to_dict() for review in reviews]
         return jsonify(result), 200
