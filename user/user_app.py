@@ -109,3 +109,12 @@ def get_by_id():
         return jsonify({'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
+
+
+def get_by_id_for_garage(id):
+    id = id
+    try:
+        user = auth.get_user(id)
+        return {'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}
+    except Exception as e:
+        return f"An Error Occurred: {e}"

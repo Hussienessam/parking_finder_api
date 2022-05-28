@@ -1,16 +1,19 @@
 from flask import request, jsonify
 import user_operations.user_operations_app as user_operations
-# import database.connect_database as db_connection
-#
-# db = db_connection.connect()
+import user.user_app as user_app
 
 def show_garage_reviews(db):
     try:
         review_ref = db.collection('Review')
         garage_id = request.args.get('garageID')
         reviews = review_ref.where('garageID', '==', garage_id).stream()
-        result = [review.to_dict() for review in reviews]
-        return jsonify(result), 200
+        response = []
+        for doc in reviews:
+            doc = doc.to_dict()
+            doc['cameraID'] = user_operations.get_camera(doc['cameraID'], db)
+            doc['driverID'] = user_app.get_by_id_for_garage(doc['driverID'])
+            response.append(doc)
+        return jsonify(response), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
