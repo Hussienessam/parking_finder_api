@@ -108,6 +108,17 @@ def delete(collection_ref, db):
 
             if doc_ref.document(doc_id).get().exists:
                 doc_ref.document(doc_id).delete()
+                if collection_ref == 'Camera':
+                    garage_ref = db.collection('Garage')
+                    garages = garage_ref.where('cameraIDs', 'array_contains', doc_id).stream()
+                    for garage in garages:
+                        garage = garage.to_dict()
+                        for i in range(len(garage['cameraIDs'])):
+                            print(garage['cameraIDs'])
+                            if garage['cameraIDs'][i] == doc_id:
+                                garage['cameraIDs'].pop(i)
+                                garage_ref.document(garage['id']).update(garage)
+                                break
                 return jsonify("Document is deleted successfully"), 200
 
             else:
