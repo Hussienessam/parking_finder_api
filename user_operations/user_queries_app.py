@@ -1,4 +1,8 @@
 from flask import request, jsonify
+import user_operations.user_operations_app as user_operations
+# import database.connect_database as db_connection
+#
+# db = db_connection.connect()
 
 def show_garage_reviews(db):
     try:
@@ -27,7 +31,12 @@ def get_owner_garages(db):
         garage_ref = db.collection('Garage')
         ownerID = request.args.get('ownerID')
         docs = garage_ref.where('ownerID', '==', ownerID).stream()
-        response = [doc.to_dict() for doc in docs]
+        response = []
+        for doc in docs:
+            doc = doc.to_dict()
+            for i in range(len(doc['cameraIDs'])):
+                doc['cameraIDs'][i] = user_operations.get_camera(doc['cameraIDs'][i],db)
+            response.append(doc)
         return jsonify(response), 200
     except Exception as e:
         return f"An Error Occurred: {e}"

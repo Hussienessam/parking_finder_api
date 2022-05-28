@@ -33,8 +33,7 @@ def create(collection_ref, db):
 def get(collection_ref, db):
     try:
         doc_ref = db.collection(collection_ref)
-        if len(doc_ref.get()) != 0:    
-
+        if len(doc_ref.get()) != 0:
             doc_id = request.args.get('id')
             if doc_id:
                 if doc_ref.document(doc_id).get().exists:
@@ -53,6 +52,25 @@ def get(collection_ref, db):
     except Exception as e:
         return f"An Error Occurred: {e}"
 
+
+def get_camera(id,db):
+    try:
+        doc_ref = db.collection("Camera")
+        if len(doc_ref.get()) != 0:
+            doc_id = id
+            if doc_id:
+                if doc_ref.document(doc_id).get().exists:
+                    doc = doc_ref.document(doc_id).get()
+                    return doc.to_dict()
+                else:
+                    return "document doesn't exist"
+            else:
+                all_docs = [doc.to_dict() for doc in doc_ref.stream()]
+                return jsonify(all_docs), 200
+        else:
+            return "collection doesn't exist"
+    except Exception as e:
+        return f"An Error Occurred: {e}"
 
 def update(collection_ref, db):
     try:
