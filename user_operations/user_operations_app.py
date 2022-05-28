@@ -104,7 +104,7 @@ def delete(collection_ref, db):
 
         doc_ref = db.collection(collection_ref)
         if len(doc_ref.get()) != 0:
-            doc_id = request.json['id']
+            doc_id = request.args.get('id')
 
             if doc_ref.document(doc_id).get().exists:
                 doc_ref.document(doc_id).delete()
