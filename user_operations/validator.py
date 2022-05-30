@@ -65,10 +65,8 @@ def validate(db, document, collection, is_required):
     schema = built_schema(collection, is_required)
     v = Validator(schema)
     validated = v.validate(document)
-    print(validated)
     if validated:
         unique_validated, error = unique_validation(db, document, collection)
-        print(unique_validated, error)
         return unique_validated, error
     else:
         return validated, v.errors

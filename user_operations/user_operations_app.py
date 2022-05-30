@@ -107,6 +107,12 @@ def delete(collection_ref, db):
             doc_id = request.args.get('id')
 
             if doc_ref.document(doc_id).get().exists:
+                if collection_ref == 'Garage':
+                    garage = doc_ref.document(doc_id).get()
+                    camera_ref = db.collection('Camera')
+                    garage = garage.to_dict()
+                    for i in range(len(garage['cameraIDs'])):
+                        camera_ref.document(garage['cameraIDs'][i]).delete()
                 doc_ref.document(doc_id).delete()
                 if collection_ref == 'Camera':
                     garage_ref = db.collection('Garage')
@@ -114,7 +120,6 @@ def delete(collection_ref, db):
                     for garage in garages:
                         garage = garage.to_dict()
                         for i in range(len(garage['cameraIDs'])):
-                            print(garage['cameraIDs'])
                             if garage['cameraIDs'][i] == doc_id:
                                 garage['cameraIDs'].pop(i)
                                 garage_ref.document(garage['id']).update(garage)
