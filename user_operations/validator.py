@@ -12,8 +12,8 @@ def built_schema(collection, is_required):
 
     garage_schema = {
         'id': {'type': 'string', 'required': True},
-        'capacity': {'type': 'integer', 'required': is_required},
-        'address': {'type': 'string', 'required': is_required},
+        'capacity': {'type': 'string', 'required': is_required},
+        'Address': {'type': 'string', 'required': is_required},
         'cameraIDs': {'type': 'list', 'required': is_required},
         'location': {'type': 'dict', 'schema': {'lat': {'type': 'string', 'required': is_required},
                                                 'long': {'type': 'string', 'required': is_required}}, 
@@ -58,13 +58,17 @@ def unique_validation(db, document, collection):
             return True, ""
         else:
             return False, "Bookmark previously added"
+    else:
+        return True, ""
 
 def validate(db, document, collection, is_required):
     schema = built_schema(collection, is_required)
     v = Validator(schema)
     validated = v.validate(document)
+    print(validated)
     if validated:
         unique_validated, error = unique_validation(db, document, collection)
+        print(unique_validated, error)
         return unique_validated, error
     else:
         return validated, v.errors

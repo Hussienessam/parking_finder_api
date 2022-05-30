@@ -77,7 +77,7 @@ def update(collection_ref, db):
 
         doc_ref = db.collection(collection_ref)
         if len(doc_ref.get()) != 0:
-            validated, errors = validator.validate(
+            validated, errors = validator.validate(db,
                 request.json, collection_ref, is_required=False)
 
             if validated:
