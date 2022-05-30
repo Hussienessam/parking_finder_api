@@ -67,3 +67,33 @@ def validate_unique_bookmark(db, document):
         return True
     except Exception as e:
         return f"An Error Occurred: {e}"
+
+def handle_delete(db, collection_ref, doc):
+    if collection_ref == 'Garage':
+        camera_ref = db.collection('GarageCamera')
+        doc = doc.to_dict()
+        for i in range(len(doc['cameraIDs'])):
+            camera_ref.document(doc['cameraIDs'][i]).delete()
+    
+    if collection_ref == 'GarageCamera':
+        doc = doc.to_dict()
+        doc_id = doc['id']
+        garage_ref = db.collection('Garage')
+        garages = garage_ref.where('cameraIDs', 'array_contains', doc_id).stream()
+        for garage in garages:
+            garage = garage.to_dict()
+            for i in range(len(garage['cameraIDs'])):
+                if garage['cameraIDs'][i] == doc_id:
+                    garage['cameraIDs'].pop(i)
+                    garage_ref.document(garage['id']).update(garage)
+                    break
+
+def handle_add(db, collection_ref, doc):
+    if collection_ref == 'GarageCamera':
+        garage_ref = db.collection("Garage")
+        garage_doc = garage_ref.document(doc['garage_id']).get().to_dict()
+        garage_doc['cameraIDs'].append(doc['id'])
+        garage_ref.document(doc['garage_id']).update(garage_doc)
+
+        
+

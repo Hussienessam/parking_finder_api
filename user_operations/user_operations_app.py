@@ -1,4 +1,5 @@
 from flask import request, jsonify
+import user_operations.user_queries_app as user_queries
 import user_operations.validator as validator
 import datetime as dt
 
@@ -19,6 +20,7 @@ def create(collection_ref, db):
 
             if validated:
                 doc_ref.set(request.json)
+                user_queries.handle_add(db, collection_ref, request.json)
                 return jsonify(f"Document is added successfully"), 200
 
             else:
@@ -107,23 +109,9 @@ def delete(collection_ref, db):
             doc_id = request.args.get('id')
 
             if doc_ref.document(doc_id).get().exists:
-                if collection_ref == 'Garage':
-                    garage = doc_ref.document(doc_id).get()
-                    camera_ref = db.collection('Camera')
-                    garage = garage.to_dict()
-                    for i in range(len(garage['cameraIDs'])):
-                        camera_ref.document(garage['cameraIDs'][i]).delete()
+                doc =  doc_ref.document(doc_id).get()
+                user_queries.handle_delete(db, collection_ref, doc)
                 doc_ref.document(doc_id).delete()
-                if collection_ref == 'Camera':
-                    garage_ref = db.collection('Garage')
-                    garages = garage_ref.where('cameraIDs', 'array_contains', doc_id).stream()
-                    for garage in garages:
-                        garage = garage.to_dict()
-                        for i in range(len(garage['cameraIDs'])):
-                            if garage['cameraIDs'][i] == doc_id:
-                                garage['cameraIDs'].pop(i)
-                                garage_ref.document(garage['id']).update(garage)
-                                break
                 return jsonify("Document is deleted successfully"), 200
 
             else:

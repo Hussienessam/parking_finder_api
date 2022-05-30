@@ -10,10 +10,16 @@ def built_schema(collection, is_required):
                                                 'required': is_required},
     }
 
+    garage_camera_schema = {
+        'id': {'type': 'string', 'required': True},
+        'address': {'type': 'string', 'required': is_required},
+        'garage_id': {'type': 'string', 'required': is_required}
+    }
+
     garage_schema = {
         'id': {'type': 'string', 'required': True},
         'capacity': {'type': 'string', 'required': is_required},
-        'Address': {'type': 'string', 'required': is_required},
+        'address': {'type': 'string', 'required': is_required},
         'cameraIDs': {'type': 'list', 'required': is_required},
         'location': {'type': 'dict', 'schema': {'lat': {'type': 'string', 'required': is_required},
                                                 'long': {'type': 'string', 'required': is_required}}, 
@@ -41,6 +47,9 @@ def built_schema(collection, is_required):
 
     if collection == "Camera":
         return camera_schema
+
+    elif collection == "GarageCamera":
+        return garage_camera_schema
 
     elif collection == "Garage":
         return garage_schema
