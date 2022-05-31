@@ -91,3 +91,7 @@ def get_by_id():
 @app.route('/log_in', methods=['GET'])
 def log_in():
     return user.log_in()
+
+@app.route('/get_camera_info', methods=['GET'])
+def get_camera_info():
+    return user_queries.get_camera_info(db)
