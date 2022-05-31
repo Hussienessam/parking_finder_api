@@ -19,6 +19,7 @@ def create(collection_ref, db):
                 request.json, collection_ref, is_required=True)
 
             if validated:
+                user_queries.handle_add(db, collection_ref, request.json)
                 doc_ref.set(request.json)
                 return jsonify(f"Document is added successfully"), 200
 
