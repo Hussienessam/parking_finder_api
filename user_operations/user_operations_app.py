@@ -57,7 +57,7 @@ def get(collection_ref, db):
 
 def get_camera(id,db):
     try:
-        doc_ref = db.collection("Camera")
+        doc_ref = db.collection("GarageCamera")
         if len(doc_ref.get()) != 0:
             doc_id = id
             if doc_id:
