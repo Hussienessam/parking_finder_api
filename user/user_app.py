@@ -19,7 +19,7 @@ def sign_up(db):
         doc_ref = db.collection(u'Owner')
         own = {"email":email, "is_owner":is_owner}
         doc_ref.document(user.uid).set(own)
-        return jsonify({"name":user.uid ,"email":user.email,"id":user.uid,"number":user.phone_number}), 200
+        return jsonify({"name":user.name ,"email":user.email,"id":user.uid,"number":user.phone_number}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
