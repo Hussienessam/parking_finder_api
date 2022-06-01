@@ -45,6 +45,9 @@ def get(collection_ref, db):
                 else:
                     return "document doesn't exist"
             else:
+                if collection_ref == "Review":
+                    all_docs = user_queries.get_ordered_reviews(db)
+                    return jsonify(all_docs), 200
                 all_docs = [doc.to_dict() for doc in doc_ref.stream()]
                 return jsonify(all_docs), 200
         

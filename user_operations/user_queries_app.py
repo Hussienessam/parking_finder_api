@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from firebase_admin import firestore
 import user_operations.user_operations_app as user_operations
 import user.user_app as user_app
 
@@ -6,7 +7,7 @@ def show_garage_reviews(db):
     try:
         review_ref = db.collection('Review')
         garage_id = request.args.get('garageID')
-        reviews = review_ref.where('garageID', '==', garage_id).stream()
+        reviews = review_ref.where('garageID', '==', garage_id).order_by('date', direction=firestore.Query.DESCENDING).stream()
         response = []
         for doc in reviews:
             doc = doc.to_dict()
@@ -22,7 +23,7 @@ def show_street_reviews(db):
     try:
         review_ref = db.collection('Review')
         camera_id = request.args.get('cameraID')
-        reviews = review_ref.where('cameraID', '==', camera_id).stream()
+        reviews = review_ref.where('cameraID', '==', camera_id).stream().order_by('date', direction=firestore.Query.DESCENDING).stream()
         result = [review.to_dict() for review in reviews]
         return jsonify(result), 200
     except Exception as e:
@@ -112,4 +113,12 @@ def get_camera_info(db):
     except Exception as e:
         return f"An Error Occurred: {e}"
         
+def get_ordered_reviews(db):
+    try:
+        review_ref = db.collection('Review')
+        docs = review_ref.order_by('date', direction=firestore.Query.DESCENDING).stream()
+        response = [doc.to_dict() for doc in docs]
+        return response
+    except Exception as e:
+        return f"An Error Occurred: {e}"
 
