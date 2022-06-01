@@ -23,7 +23,7 @@ def show_street_reviews(db):
     try:
         review_ref = db.collection('Review')
         camera_id = request.args.get('cameraID')
-        reviews = review_ref.where('cameraID', '==', camera_id).stream().order_by('date', direction=firestore.Query.DESCENDING).stream()
+        reviews = review_ref.where('cameraID', '==', camera_id).order_by('date', direction=firestore.Query.DESCENDING).stream()
         result = [review.to_dict() for review in reviews]
         return jsonify(result), 200
     except Exception as e:
