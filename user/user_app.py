@@ -28,8 +28,9 @@ def log_in():
     email = request.args.get('email')
     try:
         user = login_auth.sign_in_with_email_and_password(email, password)
+        print(user)
         return jsonify(
-            {'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}), 200
+            {'id': user['localId'], 'name': user['displayName'], 'email': user['email'], 'idToken': user['idToken']}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
