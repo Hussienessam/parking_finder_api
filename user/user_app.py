@@ -51,9 +51,8 @@ def log_in(db):
     try:
         try :
             user = login_auth.sign_in_with_email_and_password(email, password)
-            return jsonify({"value": "incorrect email or password"}), 200
         except Exception as e:
-            pass
+            return jsonify({"value": "incorrect email or password"}), 200
 
         access_token = create_access_token(identity=get_role(user['localId'], db))
         return jsonify(
@@ -108,11 +107,15 @@ def update_number():
 
 
 def update_password():
-    newpass = request.json['password']
+    oldpass = request.json['old_password']
     email = request.json['email']
+    newpass = request.json['new_password']
     try:
-        user = auth.get_user_by_email(email)
-        id = user.uid
+        try :
+            user = login_auth.sign_in_with_email_and_password(email, oldpass)
+        except Exception as e:
+            return jsonify({"value": "incorrect password"}), 200
+        id = user['localId']
         auth.update_user(id, password=newpass)
         return jsonify({"success": True}), 200
     except Exception as e:
