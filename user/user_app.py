@@ -1,8 +1,10 @@
 from flask import request, jsonify
 from firebase_admin import auth
 import database.login_connect as db_connection
+from flask_jwt_extended import create_access_token
 
 login_auth = db_connection.connect()
+
 
 def sign_up(db):
     name = request.json['name']
@@ -23,18 +25,17 @@ def sign_up(db):
     except Exception as e:
         return f"An Error Occurred: {e}"
 
+
 def log_in():
     password = request.args.get('password')
     email = request.args.get('email')
     try:
         user = login_auth.sign_in_with_email_and_password(email, password)
-        print(user)
+        access_token = create_access_token(identity=email)
         return jsonify(
-            {'id': user['localId'], 'name': user['displayName'], 'email': user['email'], 'idToken': user['idToken']}), 200
+            {'id': user['localId'], 'name': user['displayName'], 'email': user['email'], 'idToken':access_token}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
-
-
 
 
 def update_name():
