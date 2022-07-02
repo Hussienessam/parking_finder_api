@@ -13,6 +13,18 @@ def sign_up(db):
     number = request.json['number']
     is_owner = request.json['is_owner']
     try :
+        try :
+            user = auth.get_user_by_email(email)
+            return jsonify({"value": "email already exists"}), 200
+        except Exception as e:
+            pass
+        
+        try :
+            user = auth.get_user_by_phone_number(number)
+            return jsonify({"value": "phone number already exists"}), 200
+        except Exception as e:
+            pass
+
         user = auth.create_user(email=email,
                                 password=password,
                                 phone_number=number,
@@ -21,19 +33,31 @@ def sign_up(db):
         doc_ref = db.collection(u'Owner')
         own = {"email":email, "is_owner":is_owner}
         doc_ref.document(user.uid).set(own)
-        return jsonify({"name":user.name ,"email":user.email,"id":user.uid,"number":user.phone_number}), 200
+        return jsonify({"value": "sign in successful"}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
+def get_role(id, db):
+    user_ref = db.collection(u'Owner')
+    user = user_ref.document(id).get().to_dict()
+    if user['is_owner'] == False:
+        return "driver"
+    else:
+        return "owner"
 
-def log_in():
+def log_in(db):
     password = request.args.get('password')
     email = request.args.get('email')
     try:
-        user = login_auth.sign_in_with_email_and_password(email, password)
-        access_token = create_access_token(identity=email)
+        try :
+            user = login_auth.sign_in_with_email_and_password(email, password)
+            return jsonify({"value": "incorrect email or password"}), 200
+        except Exception as e:
+            pass
+
+        access_token = create_access_token(identity=get_role(user['localId'], db))
         return jsonify(
-            {'id': user['localId'], 'name': user['displayName'], 'email': user['email'], 'idToken':access_token}), 200
+            {'id': user['localId'], 'idToken': access_token, 'value': "login successful"}), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
@@ -114,7 +138,6 @@ def get_by_id():
 
 
 def get_by_id_for_garage(id):
-    id = id
     try:
         user = auth.get_user(id)
         return {'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}

@@ -4,11 +4,12 @@ import user_operations.user_operations_app as user_operations
 import user_operations.user_queries_app as user_queries
 import user.user_app as user
 import database.connect_database as db_connection
-from flask_jwt_extended import JWTManager, jwt_required
+from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 
 db = db_connection.connect()
 app = Flask(__name__)
 jwt = JWTManager(app)
+driver_roles = ['Bookmark', 'Review']
 
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
 
@@ -22,6 +23,11 @@ def find():
 @app.route('/<string:collection>/add', methods=['POST'])
 @jwt_required()
 def add_document(collection):
+    role = get_jwt_identity()
+    if collection not in driver_roles and  role == 'driver':
+        return 'Not authorized'
+    elif collection in driver_roles and role == 'owner':
+        return 'Not authorized'
     return user_operations.create(collection, db)
 
 
@@ -34,12 +40,20 @@ def get_document(collection):
 @app.route('/<string:collection>/update', methods=['PUT'])
 @jwt_required()
 def update_document(collection):
+    role = get_jwt_identity()
+    if role == 'driver':
+        return 'Not authorized'
     return user_operations.update(collection, db)
 
 
 @app.route('/<string:collection>/delete', methods=['DELETE'])
 @jwt_required()
 def delete_document(collection):
+    role = get_jwt_identity()
+    if collection not in driver_roles and  role == 'driver':
+        return 'Not authorized'
+    elif collection in driver_roles and role == 'owner':
+        return 'Not authorized'
     return user_operations.delete(collection, db)
 
 
@@ -52,6 +66,9 @@ def show_garage_reviews():
 @app.route('/show_street_reviews', methods=['GET'])
 @jwt_required()
 def show_street_reviews():
+    role = get_jwt_identity()
+    if role == 'owner':
+        return 'Not authorized'
     return user_queries.show_street_reviews(db)
 
 
@@ -64,11 +81,13 @@ def get_owner_garages():
 @app.route('/get_user_bookmark', methods=['GET'])
 @jwt_required()
 def get_user_bookmark():
+    role = get_jwt_identity()
+    if role == 'owner':
+        return 'Not authorized'
     return user_queries.get_user_bookmark(db)
 
 
 @app.route('/sign_up', methods=['POST'])
-@jwt_required()
 def sign_up():
     return user.sign_up(db)
 
@@ -111,7 +130,7 @@ def get_by_id():
 
 @app.route('/log_in', methods=['GET'])
 def log_in():
-    return user.log_in()
+    return user.log_in(db)
 
 
 @app.route('/get_camera_info', methods=['GET'])
