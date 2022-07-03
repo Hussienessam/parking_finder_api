@@ -1,3 +1,4 @@
+import datetime
 from flask import request, jsonify
 from firebase_admin import auth
 import database.login_connect as db_connection
@@ -54,7 +55,7 @@ def log_in(db):
         except Exception as e:
             return jsonify({"value": "incorrect email or password"}), 200
 
-        access_token = create_access_token(identity=get_role(user['localId'], db))
+        access_token = create_access_token(identity=get_role(user['localId'], db), expires_delta=datetime.timedelta(days=7))
         return jsonify(
             {'id': user['localId'], 'idToken': access_token, 'value': "login successful"}), 200
     except Exception as e:
