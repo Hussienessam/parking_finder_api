@@ -16,7 +16,7 @@ def show_garage_reviews(db):
             response.append(doc)
         return jsonify(response), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return f"An Error Occurred: {e}", 400
 
 
 def show_street_reviews(db):
@@ -27,7 +27,7 @@ def show_street_reviews(db):
         result = [review.to_dict() for review in reviews]
         return jsonify(result), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return f"An Error Occurred: {e}", 400
 
 
 def get_owner_garages(db):
@@ -43,7 +43,7 @@ def get_owner_garages(db):
             response.append(doc)
         return jsonify(response), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return f"An Error Occurred: {e}", 400
 
 def get_user_bookmark(db):
     try:
@@ -53,7 +53,7 @@ def get_user_bookmark(db):
         response = [doc.to_dict() for doc in docs]
         return jsonify(response), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return f"An Error Occurred: {e}", 400
 
 def validate_unique_bookmark(db, document):
     try:
@@ -67,7 +67,7 @@ def validate_unique_bookmark(db, document):
                 return False
         return True
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return f"An Error Occurred: {e}", 400
 
 def handle_delete(db, collection_ref, doc):
     if collection_ref == 'Garage':
@@ -109,9 +109,9 @@ def get_camera_info(db):
                 response = {'location': doc['location'], 'address': doc['address']}
             return jsonify(response), 200
         else:
-            return "Camera doesn't exist"
+            return "Camera doesn't exist", 404
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return f"An Error Occurred: {e}", 400
         
 def get_ordered_reviews(db):
     try:
@@ -120,5 +120,5 @@ def get_ordered_reviews(db):
         response = [doc.to_dict() for doc in docs]
         return response
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return f"An Error Occurred: {e}", 400
 

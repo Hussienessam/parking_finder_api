@@ -9,7 +9,8 @@ from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 db = db_connection.connect()
 app = Flask(__name__)
 jwt = JWTManager(app)
-driver_roles = ['Bookmark', 'Review']
+driver_roles = ['Bookmark', 'Review', 'Camera', 'Owner']
+owner_roles = ['Garage', 'GarageCamera', 'Owner']
 
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
 
@@ -25,15 +26,19 @@ def find():
 def add_document(collection):
     role = get_jwt_identity()
     if collection not in driver_roles and  role == 'driver':
-        return 'Not authorized'
+        return 'Not authorized', 401
     elif collection in driver_roles and role == 'owner':
-        return 'Not authorized'
+        return 'Not authorized', 401
+    elif collection not in driver_roles and collection not in owner_roles:
+        return "collection doesn't exist", 404
     return user_operations.create(collection, db)
 
 
 @app.route('/<string:collection>/get', methods=['GET'])
 @jwt_required()
 def get_document(collection):
+    if collection not in driver_roles and collection not in owner_roles:
+        return "collection doesn't exist", 404
     return user_operations.get(collection, db)
 
 
@@ -41,8 +46,10 @@ def get_document(collection):
 @jwt_required()
 def update_document(collection):
     role = get_jwt_identity()
+    if collection not in driver_roles and collection not in owner_roles:
+        return "collection doesn't exist", 404
     if role == 'driver':
-        return 'Not authorized'
+        return 'Not authorized', 401
     return user_operations.update(collection, db)
 
 
@@ -51,9 +58,11 @@ def update_document(collection):
 def delete_document(collection):
     role = get_jwt_identity()
     if collection not in driver_roles and  role == 'driver':
-        return 'Not authorized'
+        return 'Not authorized', 401
     elif collection in driver_roles and role == 'owner':
-        return 'Not authorized'
+        return 'Not authorized', 401
+    if collection not in driver_roles and collection not in owner_roles:
+        return "collection doesn't exist", 404
     return user_operations.delete(collection, db)
 
 
@@ -68,7 +77,7 @@ def show_garage_reviews():
 def show_street_reviews():
     role = get_jwt_identity()
     if role == 'owner':
-        return 'Not authorized'
+        return 'Not authorized', 401
     return user_queries.show_street_reviews(db)
 
 
@@ -83,7 +92,7 @@ def get_owner_garages():
 def get_user_bookmark():
     role = get_jwt_identity()
     if role == 'owner':
-        return 'Not authorized'
+        return 'Not authorized', 401
     return user_queries.get_user_bookmark(db)
 
 
@@ -101,7 +110,7 @@ def update_name():
 @app.route('/update_email', methods=['POST'])
 @jwt_required()
 def update_email():
-    return user.update_email()
+    return user.update_email(db)
 
 
 @app.route('/update_password', methods=['POST'])
