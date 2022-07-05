@@ -25,12 +25,12 @@ def find():
 @jwt_required()
 def add_document(collection):
     role = get_jwt_identity()
-    if collection not in driver_roles and  role == 'driver':
+    if collection not in driver_roles and collection not in owner_roles:
+        return "collection doesn't exist", 404
+    elif collection not in driver_roles and  role == 'driver':
         return 'Not authorized', 401
     elif collection in driver_roles and role == 'owner':
         return 'Not authorized', 401
-    elif collection not in driver_roles and collection not in owner_roles:
-        return "collection doesn't exist", 404
     return user_operations.create(collection, db)
 
 
@@ -57,12 +57,12 @@ def update_document(collection):
 @jwt_required()
 def delete_document(collection):
     role = get_jwt_identity()
-    if collection not in driver_roles and  role == 'driver':
+    if collection not in driver_roles and collection not in owner_roles:
+        return "collection doesn't exist", 404
+    elif collection not in driver_roles and  role == 'driver':
         return 'Not authorized', 401
     elif collection in driver_roles and role == 'owner':
         return 'Not authorized', 401
-    if collection not in driver_roles and collection not in owner_roles:
-        return "collection doesn't exist", 404
     return user_operations.delete(collection, db)
 
 
