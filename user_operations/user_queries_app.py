@@ -124,22 +124,22 @@ def get_ordered_reviews(db):
         return f"An Error Occurred: {e}", 400
 
 
-def update_snaps(db, url, capacity):
+def update_snaps(db, snap):
     try:
-        camera_id = request.args.get('id')
-        garage_ref = db.collection('GarageSnaps')
+        collection_ref = db.collection('GarageSnaps')
+        docs = collection_ref.where('garageCameraID', '==', snap['garageCameraID']).stream()
+        response = [doc.to_dict() for doc in docs]
 
-        garage_ref.where('driverID', '==', camera_id).stream()
-        if garage_ref.document(camera_id).get().exists:
-            doc_ref = db.collection(garage_ref)
-            doc_ref.document(camera_id).update({'date': dt.datetime.now(), 'path': ur})
-            return jsonify(f"Document is updated successfully"), 200
-        else:
-            doc_ref = db.collection(garage_ref).document()
-            doc = {'id': doc_ref.id, 'garageCameraId': camera_id, 'date': dt.datetime.now(), 'capacity': capacity,
-                   'path': url}
-            doc_ref.set(doc)
+        if len(response) == 0:
+            doc_ref = collection_ref.document()
+            snap.update({'id': doc_ref.id, 'date': dt.datetime.now()})
+            doc_ref.set(snap)
             return jsonify(f"Document is added successfully"), 200
+            
+        else:
+            collection_ref.document(response[0]['id']).update({'date': dt.datetime.now(), 
+            'path': snap['path']})
+            return jsonify("Document is updated successfully"), 200
 
     except Exception as e:
         return f"An Error Occurred: {e}", 400
