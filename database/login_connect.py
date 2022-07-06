@@ -25,4 +25,5 @@ def connect():
     firebase = pyrebase.initialize_app(appConfig)
     auth = firebase.auth()
     db2 = firebase.database()
-    return auth
+    storage = firebase.storage()
+    return auth, storage

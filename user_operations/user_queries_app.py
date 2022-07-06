@@ -2,6 +2,7 @@ from flask import request, jsonify
 from firebase_admin import firestore
 import user_operations.user_operations_app as user_operations
 import user.user_app as user_app
+import datetime as dt
 
 def show_garage_reviews(db):
     try:
@@ -122,3 +123,23 @@ def get_ordered_reviews(db):
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
+
+def update_snaps(db, url, capacity):
+    try:
+        camera_id = request.args.get('id')
+        garage_ref = db.collection('GarageSnaps')
+
+        garage_ref.where('driverID', '==', camera_id).stream()
+        if garage_ref.document(camera_id).get().exists:
+            doc_ref = db.collection(garage_ref)
+            doc_ref.document(camera_id).update({'date': dt.datetime.now(), 'path': ur})
+            return jsonify(f"Document is updated successfully"), 200
+        else:
+            doc_ref = db.collection(garage_ref).document()
+            doc = {'id': doc_ref.id, 'garageCameraId': camera_id, 'date': dt.datetime.now(), 'capacity': capacity,
+                   'path': url}
+            doc_ref.set(doc)
+            return jsonify(f"Document is added successfully"), 200
+
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400

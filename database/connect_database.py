@@ -7,4 +7,4 @@ def connect():
     default_app = initialize_app(cred, {'storageBucket': 'parkingfinder-589b5.appspot.com' })
     db = firestore.client()
     bucket = storage.bucket()
-    return db, bucket, storage
+    return db, bucket
