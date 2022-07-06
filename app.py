@@ -9,7 +9,7 @@ from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 db = db_connection.connect()
 app = Flask(__name__)
 jwt = JWTManager(app)
-driver_roles = ['Bookmark', 'Review', 'Camera', 'Owner']
+driver_roles = ['Bookmark', 'Review', 'Camera', 'Owner', 'Snaps', 'GarageSnaps']
 owner_roles = ['Garage', 'GarageCamera', 'Owner']
 
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"

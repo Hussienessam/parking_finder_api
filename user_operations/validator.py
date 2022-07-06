@@ -45,6 +45,22 @@ def built_schema(collection, is_required):
                                                 'required': is_required}
     }
 
+    garage_snap_schema = {
+        "id": {'type': 'string', 'required': True},
+        "capacity": {'type': 'string', 'required': is_required},
+        "date": {'type': 'datetime', 'required': is_required},
+        "garageCameraID": {'type': 'string', 'required': is_required},
+        'path': {'type': 'string', 'required': is_required}
+    }
+
+    snap_schema = {
+        "id": {'type': 'string', 'required': True},
+        "capacity": {'type': 'string', 'required': is_required},
+        "date": {'type': 'datetime', 'required': is_required},
+        "cameraID": {'type': 'string', 'required': is_required},
+        'path': {'type': 'string', 'required': is_required}
+    }
+
     if collection == "Camera":
         return camera_schema
 
@@ -59,6 +75,13 @@ def built_schema(collection, is_required):
         
     elif collection == "Bookmark":
         return bookmark_schema
+    
+    elif collection == "GarageSnaps":
+        return garage_snap_schema
+    
+    elif collection == "Snaps":
+        return snap_schema
+
 
 def unique_validation(db, document, collection):
     if collection == "Bookmark":

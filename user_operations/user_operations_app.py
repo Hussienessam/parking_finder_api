@@ -9,7 +9,7 @@ def create(collection_ref, db):
         doc_ref = db.collection(collection_ref).document()
         request.json.update({'id': doc_ref.id})
 
-        if collection_ref == "Review":
+        if collection_ref == "Review" or collection_ref == "Snaps" or collection_ref == "GarageSnaps":
             request.json.update({'date': dt.datetime.now()})
 
         validated, errors = validator.validate(db,
