@@ -27,8 +27,7 @@ def mock(db, bucket,storage):
             )
             image_url = storage.child(camera_id + '.jpg').get_url(None)
             snap = {'garageCameraID': camera_id, 'capacity': capacity, 'path': image_url}
-            user_queries.update_snaps(db, snap)
-            break
+            return user_queries.update_snaps(db, snap)
         if cv2.waitKey(1) == 27:
             break
 
