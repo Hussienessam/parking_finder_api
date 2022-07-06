@@ -1,4 +1,5 @@
 from flask import Flask
+import mock_camera.webcam as camera
 import model.model_app as model
 import user_operations.user_operations_app as user_operations
 import user_operations.user_queries_app as user_queries
@@ -6,13 +7,17 @@ import user.user_app as user
 import database.connect_database as db_connection
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 
-db = db_connection.connect()
+db, bucket, storage = db_connection.connect()
 app = Flask(__name__)
 jwt = JWTManager(app)
 driver_roles = ['Bookmark', 'Review', 'Camera', 'Owner']
 owner_roles = ['Garage', 'GarageCamera', 'Owner']
 
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
+
+@app.route('/mocking_camera', methods=['POST'])
+def mock():
+    return camera.mock(db, bucket, storage)
 
 
 @app.route('/find', methods=['POST'])
