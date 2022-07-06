@@ -7,8 +7,9 @@ from flask import request
 
 
 def mock(db, bucket,storage):
-    camera_id = request.args.get('id')
-    capacity = request.args.get('capacity')
+    camera_id = request.json['id']
+    capacity = request.json['capacity']
+    mock_garage = request.json['mock_garage']
 
     url = "http://192.168.1.8:8080/shot.jpg"
     while True:
@@ -26,8 +27,8 @@ def mock(db, bucket,storage):
                 content_type='image/jpg'
             )
             image_url = storage.child(camera_id + '.jpg').get_url(None)
-            snap = {'garageCameraID': camera_id, 'capacity': capacity, 'path': image_url}
-            return user_queries.update_snaps(db, snap)
+            snap = {'cameraID': camera_id, 'capacity': capacity, 'path': image_url}
+            return user_queries.update_snaps(db, snap, mock_garage)
         if cv2.waitKey(1) == 27:
             break
 
