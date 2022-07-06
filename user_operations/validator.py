@@ -40,6 +40,7 @@ def built_schema(collection, is_required):
         "id": {'type': 'string', 'required': True},
         "name": {'type': 'string', 'required': is_required},
         'driverID': {'type': 'string', 'required': is_required},
+        'locationURL' : {'type': 'string', 'required': is_required},
         'location': {'type': 'dict', 'schema': {'lat': {'type': 'string', 'required': is_required},
                                                 'long': {'type': 'string', 'required': is_required}}, 
                                                 'required': is_required}

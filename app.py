@@ -153,3 +153,19 @@ def log_in():
 @jwt_required()
 def get_camera_info():
     return user_queries.get_camera_info(db)
+
+@app.route('/clear_driver_history', methods=['DELETE'])
+@jwt_required()
+def clear_driver_history():
+    role = get_jwt_identity()
+    if role == 'owner':
+        return 'Not authorized', 401
+    return user_queries.clear_driver_history(db)
+
+@app.route('/clear_driver_bookmark', methods=['DELETE'])
+@jwt_required()
+def clear_driver_bookmark():
+    role = get_jwt_identity()
+    if role == 'owner':
+        return 'Not authorized', 401
+    return user_queries.clear_driver_bookmark(db)

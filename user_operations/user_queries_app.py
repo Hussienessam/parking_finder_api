@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from firebase_admin import firestore
+from regex import F
 import user_operations.user_operations_app as user_operations
 import user.user_app as user_app
 import datetime as dt
@@ -109,6 +110,40 @@ def handle_driver_history(collection_ref, db, doc):
             doc_ref.document(doc['driverID']).set(new_doc)
 
         return jsonify("success"), 200
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
+
+def clear_driver_history(db):
+    try:
+        doc_ref = db.collection('Recent')
+        driverID = request.args.get('driverID')
+
+        if doc_ref.document(driverID).get().exists:
+            doc_ref.document(driverID).delete()
+            return jsonify("History is cleared successfully"), 200
+
+        else:
+            return "driver doesn't have history yet", 404
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
+
+def clear_driver_bookmark(db):
+    try:
+        doc_ref = db.collection('Bookmark')
+        driverID = request.args.get('driverID')
+        docs = doc_ref.where('driverID', '==', driverID).stream()
+        empty = True
+        
+        for doc in docs:
+            doc = doc.to_dict()
+            doc_ref.document(doc['id']).delete()
+            empty = False
+
+        if empty:
+            return "driver doesn't have bookmarks yet", 404
+        return jsonify("Bookmarks are cleared successfully"), 200
+    
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
