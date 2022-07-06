@@ -13,8 +13,8 @@ def built_schema(collection, is_required):
     garage_camera_schema = {
         'id': {'type': 'string', 'required': True},
         'address': {'type': 'string', 'required': is_required},
-        'garage_id': {'type': 'string', 'required': is_required}
-    }
+        'garage_id': {'type': 'string', 'schema': {'type': 'dict'}}
+                    ,'required': is_required}
 
     garage_schema = {
         'id': {'type': 'string', 'required': True},
@@ -61,6 +61,12 @@ def built_schema(collection, is_required):
         'path': {'type': 'string', 'required': is_required}
     }
 
+    recent_schema = {
+        "id": {'type': 'string', 'required': True},
+        'driverID': {'type': 'string', 'required': is_required},
+        'history': {'type': 'list', 'required': is_required}
+    }
+
     if collection == "Camera":
         return camera_schema
 
@@ -81,6 +87,9 @@ def built_schema(collection, is_required):
     
     elif collection == "Snaps":
         return snap_schema
+    
+    elif collection == "Recent":
+        return recent_schema
 
 
 def unique_validation(db, document, collection):

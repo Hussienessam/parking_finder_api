@@ -6,6 +6,8 @@ import datetime as dt
 
 def create(collection_ref, db):
     try:
+        if collection_ref == 'Recent' :
+            return user_queries.handle_driver_history(collection_ref, db, request.json)
         doc_ref = db.collection(collection_ref).document()
         request.json.update({'id': doc_ref.id})
 

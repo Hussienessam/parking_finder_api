@@ -97,6 +97,20 @@ def handle_add(db, collection_ref, doc):
         garage_doc['cameraIDs'].append(doc['id'])
         garage_ref.document(doc['garage_id']).update(garage_doc)
 
+def handle_driver_history(collection_ref, db, doc):
+    try:
+        doc_ref = db.collection(collection_ref)
+        if doc_ref.document(doc['driverID']).get().exists:
+            recent_doc = doc_ref.document(doc['driverID']).get().to_dict()
+            recent_doc['history'].append({'recent': doc['recent']})
+            doc_ref.document(doc['driverID']).update(recent_doc)
+        else:
+            new_doc = {'driverID': doc['driverID'], 'history': [{'recent': doc['recent']}]}
+            doc_ref.document(doc['driverID']).set(new_doc)
+
+        return jsonify("success"), 200
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
 
 def get_camera_info(db):
     try:

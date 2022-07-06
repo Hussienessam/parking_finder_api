@@ -12,7 +12,7 @@ db, bucket = db_connection.connect()
 auth, storage = login_connection.connect()
 app = Flask(__name__)
 jwt = JWTManager(app)
-driver_roles = ['Bookmark', 'Review', 'Camera', 'Owner', 'Snaps', 'GarageSnaps']
+driver_roles = ['Bookmark', 'Review', 'Camera', 'Owner', 'Snaps', 'GarageSnaps', 'Recent']
 owner_roles = ['Garage', 'GarageCamera', 'Owner']
 
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
