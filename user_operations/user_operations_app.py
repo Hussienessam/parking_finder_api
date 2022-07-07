@@ -1,24 +1,26 @@
 from flask import request, jsonify
 import user_operations.user_queries_app as user_queries
+import user_operations.user_handlers_app as user_handlers
 import user_operations.validator as validator
 import datetime as dt
 
 
 def create(collection_ref, db):
     try:
-        if collection_ref == 'Recent' :
-            return user_queries.handle_driver_history(collection_ref, db, request.json)
+        if collection_ref == 'Recent' or collection_ref == 'Snaps' or  collection_ref == 'GarageSnaps':
+            return user_handlers.special_handlers(collection_ref, db, request.json)
+        
         doc_ref = db.collection(collection_ref).document()
         request.json.update({'id': doc_ref.id})
 
-        if collection_ref == "Review" or collection_ref == "Snaps" or collection_ref == "GarageSnaps":
+        if collection_ref == "Review":
             request.json.update({'date': dt.datetime.now()})
 
         validated, errors = validator.validate(db,
             request.json, collection_ref, is_required=True)
 
         if validated:
-            user_queries.handle_add(db, collection_ref, request.json)
+            user_handlers.handle_add(db, collection_ref, request.json)
             doc_ref.set(request.json)
             return jsonify(f"Document is added successfully"), 200
 
@@ -42,29 +44,10 @@ def get(collection_ref, db):
                 return "document doesn't exist", 404
         else:
             if collection_ref == "Review":
-                all_docs = user_queries.get_ordered_reviews(db)
-                return jsonify(all_docs), 200
+                return user_queries.get_ordered_reviews(db)
             all_docs = [doc.to_dict() for doc in doc_ref.stream()]
             return jsonify(all_docs), 200
     
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
-
-
-def get_camera(id,db):
-    try:
-        doc_ref = db.collection("GarageCamera")
-        doc_id = id
-        if doc_id:
-            if doc_ref.document(doc_id).get().exists:
-                doc = doc_ref.document(doc_id).get()
-                return doc.to_dict()
-            else:
-                return "document doesn't exist", 404
-        else:
-            all_docs = [doc.to_dict() for doc in doc_ref.stream()]
-            return jsonify(all_docs), 200
-
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
@@ -98,7 +81,7 @@ def delete(collection_ref, db):
 
         if doc_ref.document(doc_id).get().exists:
             doc =  doc_ref.document(doc_id).get()
-            user_queries.handle_delete(db, collection_ref, doc)
+            user_handlers.handle_delete(db, collection_ref, doc)
             doc_ref.document(doc_id).delete()
             return jsonify("Document is deleted successfully"), 200
 

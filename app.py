@@ -17,16 +17,14 @@ owner_roles = ['Garage', 'GarageCamera', 'Owner']
 
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
 
-@app.route('/mocking_camera', methods=['POST'])
-def mock():
-    return camera.mock(db, bucket, storage)
-
-
 @app.route('/find', methods=['POST'])
 @jwt_required()
 def find():
     return model.find()
 
+@app.route('/mocking_camera', methods=['POST'])
+def mock():
+    return camera.mock(db, bucket, storage)
 
 @app.route('/<string:collection>/add', methods=['POST'])
 @jwt_required()

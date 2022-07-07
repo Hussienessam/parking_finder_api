@@ -3,6 +3,7 @@ from flask import request, jsonify
 from firebase_admin import auth
 import database.login_connect as db_connection
 from flask_jwt_extended import create_access_token
+import user_operations.user_handlers_app as user_handlers
 
 login_auth = db_connection.connect()
 
@@ -76,13 +77,6 @@ def update_name():
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
-def handle_update_user(db, id, new_email):
-    try:
-        user_ref = db.collection(u'Owner')
-        user_ref.document(id).update({'email': new_email})
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
-
 def update_email(db):
     email = request.json['email']
     new_email = request.json['newemail']
@@ -90,7 +84,7 @@ def update_email(db):
         user = auth.get_user_by_email(email)
         id = user.uid
         auth.update_user(id, email=new_email)
-        handle_update_user(db, id, new_email)
+        user_handlers.handle_update_user(db, id, new_email)
         user = auth.get_user(id)
         return jsonify(
             {'id': user.uid, 'name': user.display_name, 
@@ -150,8 +144,7 @@ def get_by_id():
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
-
-def get_by_id_for_garage(id):
+def get_user_by_id(id):
     try:
         user = auth.get_user(id)
         return {'id': user.uid, 'name': user.display_name, 

@@ -1,7 +1,5 @@
 from flask import request, jsonify
 from firebase_admin import firestore
-from regex import F
-import user_operations.user_operations_app as user_operations
 import user.user_app as user_app
 import datetime as dt
 
@@ -13,8 +11,8 @@ def show_garage_reviews(db):
         response = []
         for doc in reviews:
             doc = doc.to_dict()
-            doc['cameraID'] = user_operations.get_camera(doc['cameraID'], db)
-            doc['driverID'] = user_app.get_by_id_for_garage(doc['driverID'])
+            doc['cameraID'] = get_garage_camera(doc['cameraID'], db)
+            doc['driverID'] = user_app.get_user_by_id(doc['driverID'])
             response.append(doc)
         return jsonify(response), 200
     except Exception as e:
@@ -41,7 +39,7 @@ def get_owner_garages(db):
         for doc in docs:
             doc = doc.to_dict()
             for i in range(len(doc['cameraIDs'])):
-                doc['cameraIDs'][i] = user_operations.get_camera(doc['cameraIDs'][i],db)
+                doc['cameraIDs'][i] = get_garage_camera(doc['cameraIDs'][i],db)
             response.append(doc)
         return jsonify(response), 200
     except Exception as e:
@@ -57,59 +55,20 @@ def get_user_bookmark(db):
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
-def validate_unique_bookmark(db, document):
+def get_garage_camera(id, db):
     try:
-        bookmark_ref = db.collection('Bookmark')
-        bookmark_location = document['location']
-        driver_id = document['driverID']
-        docs = bookmark_ref.where('driverID', '==', driver_id).stream()
-        for doc in docs:
-            doc = doc.to_dict()
-            if(bookmark_location == doc['location']):
-                return False
-        return True
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
-
-def handle_delete(db, collection_ref, doc):
-    if collection_ref == 'Garage':
-        camera_ref = db.collection('GarageCamera')
-        doc = doc.to_dict()
-        for i in range(len(doc['cameraIDs'])):
-            camera_ref.document(doc['cameraIDs'][i]).delete()
-    
-    if collection_ref == 'GarageCamera':
-        doc = doc.to_dict()
-        doc_id = doc['id']
-        garage_ref = db.collection('Garage')
-        garages = garage_ref.where('cameraIDs', 'array_contains', doc_id).stream()
-        for garage in garages:
-            garage = garage.to_dict()
-            for i in range(len(garage['cameraIDs'])):
-                if garage['cameraIDs'][i] == doc_id:
-                    garage['cameraIDs'].pop(i)
-                    garage_ref.document(garage['id']).update(garage)
-                    break
-
-def handle_add(db, collection_ref, doc):
-    if collection_ref == 'GarageCamera':
-        garage_ref = db.collection("Garage")
-        garage_doc = garage_ref.document(doc['garage_id']).get().to_dict()
-        garage_doc['cameraIDs'].append(doc['id'])
-        garage_ref.document(doc['garage_id']).update(garage_doc)
-
-def handle_driver_history(collection_ref, db, doc):
-    try:
-        doc_ref = db.collection(collection_ref)
-        if doc_ref.document(doc['driverID']).get().exists:
-            recent_doc = doc_ref.document(doc['driverID']).get().to_dict()
-            recent_doc['history'].append({'recent': doc['recent']})
-            doc_ref.document(doc['driverID']).update(recent_doc)
+        doc_ref = db.collection("GarageCamera")
+        doc_id = id
+        if doc_id:
+            if doc_ref.document(doc_id).get().exists:
+                doc = doc_ref.document(doc_id).get()
+                return doc.to_dict()
+            else:
+                return "document doesn't exist", 404
         else:
-            new_doc = {'driverID': doc['driverID'], 'history': [{'recent': doc['recent']}]}
-            doc_ref.document(doc['driverID']).set(new_doc)
+            all_docs = [doc.to_dict() for doc in doc_ref.stream()]
+            return jsonify(all_docs), 200
 
-        return jsonify("success"), 200
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
@@ -134,7 +93,7 @@ def clear_driver_bookmark(db):
         driverID = request.args.get('driverID')
         docs = doc_ref.where('driverID', '==', driverID).stream()
         empty = True
-        
+
         for doc in docs:
             doc = doc.to_dict()
             doc_ref.document(doc['id']).delete()
@@ -168,7 +127,7 @@ def get_ordered_reviews(db):
         review_ref = db.collection('Review')
         docs = review_ref.order_by('date', direction=firestore.Query.DESCENDING).stream()
         response = [doc.to_dict() for doc in docs]
-        return response
+        return jsonify(response), 200
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
@@ -177,15 +136,11 @@ def update_snaps(db, snap, mock_garage):
     try:
         if mock_garage :
             collection_ref = db.collection('GarageSnaps')
-            docs = collection_ref.where('garageCameraID', '==', snap['cameraID']).stream()
         else :
             collection_ref = db.collection('Snaps')
-            docs = collection_ref.where('cameraID', '==', snap['cameraID']).stream()
-        response = [doc.to_dict() for doc in docs]
 
-        if len(response) == 0:
-            doc_ref = collection_ref.document()
-            doc = {'id': doc_ref.id, 'date': dt.datetime.now(),
+        if not collection_ref.document(snap['cameraID']).get().exists:
+            doc = {'date': dt.datetime.now(),
              'capacity': snap['capacity'], 'path': snap['path']}
             
             if mock_garage:
@@ -193,11 +148,11 @@ def update_snaps(db, snap, mock_garage):
             else:
                 doc.update({'cameraID': snap['cameraID']})
             
-            doc_ref.set(doc)
+            collection_ref.document(snap['cameraID']).set(doc)
             return jsonify(f"Document is added successfully"), 200
 
         else:
-            collection_ref.document(response[0]['id']).update({'date': dt.datetime.now(), 
+            collection_ref.document(snap['cameraID']).update({'date': dt.datetime.now(), 
             'path': snap['path']})
             return jsonify("Document is updated successfully"), 200
 

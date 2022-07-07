@@ -1,5 +1,5 @@
 from cerberus import Validator
-import user_operations.user_queries_app as user_queries
+import user_operations.user_validations_app as user_validations
 
 def built_schema(collection, is_required):
     camera_schema = {
@@ -13,8 +13,8 @@ def built_schema(collection, is_required):
     garage_camera_schema = {
         'id': {'type': 'string', 'required': True},
         'address': {'type': 'string', 'required': is_required},
-        'garage_id': {'type': 'string', 'schema': {'type': 'dict'}}
-                    ,'required': is_required}
+        'garageID': {'type': 'string', 'required': is_required}
+    }
 
     garage_schema = {
         'id': {'type': 'string', 'required': True},
@@ -46,20 +46,16 @@ def built_schema(collection, is_required):
                                                 'required': is_required}
     }
 
-    garage_snap_schema = {
-        "id": {'type': 'string', 'required': True},
-        "capacity": {'type': 'string', 'required': is_required},
-        "date": {'type': 'datetime', 'required': is_required},
-        "garageCameraID": {'type': 'string', 'required': is_required},
-        'path': {'type': 'string', 'required': is_required}
+    recent_schema = {
+        'driverID': {'type': 'string', 'required': is_required},
+        'recent': {'type': 'dict', 'required': is_required}
     }
 
     snap_schema = {
-        "id": {'type': 'string', 'required': True},
-        "capacity": {'type': 'string', 'required': is_required},
-        "date": {'type': 'datetime', 'required': is_required},
-        "cameraID": {'type': 'string', 'required': is_required},
-        'path': {'type': 'string', 'required': is_required}
+        'cameraID': {'type': 'string', 'required': True},
+        'capacity': {'type': 'string', 'required': is_required},
+        'path': {'type': 'string', 'required': is_required},
+        'mock_garage': {'type': 'boolean', 'required': is_required}
     }
 
     if collection == "Camera":
@@ -77,29 +73,20 @@ def built_schema(collection, is_required):
     elif collection == "Bookmark":
         return bookmark_schema
     
-    elif collection == "GarageSnaps":
-        return garage_snap_schema
-    
-    elif collection == "Snaps":
+    elif collection == "Snaps" or collection == "GarageSnaps":
         return snap_schema
 
+    elif collection == "Recent":
+        return recent_schema
 
-def unique_validation(db, document, collection):
-    if collection == "Bookmark":
-        is_unique = user_queries.validate_unique_bookmark(db, document)
-        if is_unique:
-            return True, ""
-        else:
-            return False, "Bookmark previously added"
-    else:
-        return True, ""
 
 def validate(db, document, collection, is_required):
     schema = built_schema(collection, is_required)
     v = Validator(schema)
     validated = v.validate(document)
+
     if validated:
-        unique_validated, error = unique_validation(db, document, collection)
-        return unique_validated, error
+        document_validated, error = user_validations.document_validation(db, document, collection)
+        return document_validated, error
     else:
         return validated, v.errors
