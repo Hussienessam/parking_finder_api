@@ -1,9 +1,12 @@
-from flask import Flask
+from flask import Flask, request
 import mock_camera.webcam as camera
 import model.model_app as model
+from user_operations.HTTP_Exception import HTTP_Exception
 import user_operations.user_operations_app as user_operations
 import user_operations.user_queries_app as user_queries
-import user.user_app as user
+import user_operations.user_validations_app as user_validations
+import user_operations.user_auth_app as user_auth
+import user.user_app as user_app
 import database.connect_database as db_connection
 import database.login_connect as login_connection
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
@@ -12,8 +15,6 @@ db, bucket = db_connection.connect()
 auth, storage = login_connection.connect()
 app = Flask(__name__)
 jwt = JWTManager(app)
-driver_roles = ['Bookmark', 'Review', 'Camera', 'Owner', 'Snaps', 'GarageSnaps', 'Recent']
-owner_roles = ['Garage', 'GarageCamera', 'Owner']
 
 app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
 
@@ -29,47 +30,67 @@ def mock():
 @app.route('/<string:collection>/add', methods=['POST'])
 @jwt_required()
 def add_document(collection):
-    role = get_jwt_identity()
-    if collection not in driver_roles and collection not in owner_roles:
-        return "collection doesn't exist", 404
-    elif collection not in driver_roles and  role == 'driver':
-        return 'Not authorized', 401
-    elif collection in driver_roles and role == 'owner':
-        return 'Not authorized', 401
-    return user_operations.create(collection, db)
+    try:
+        userID = get_jwt_identity()     
+        
+        return user_operations.create(collection, db, userID)
+
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
+
 
 
 @app.route('/<string:collection>/get', methods=['GET'])
 @jwt_required()
 def get_document(collection):
-    if collection not in driver_roles and collection not in owner_roles:
-        return "collection doesn't exist", 404
-    return user_operations.get(collection, db)
+    try:
+        userID = get_jwt_identity()
+            
+        user_auth.authorize_request(collection, db, request, userID)
+
+        return user_operations.get(collection, db)
+
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
 
 
 @app.route('/<string:collection>/update', methods=['PUT'])
 @jwt_required()
 def update_document(collection):
-    role = get_jwt_identity()
-    if collection not in driver_roles and collection not in owner_roles:
-        return "collection doesn't exist", 404
-    if role == 'driver':
-        return 'Not authorized', 401
-    return user_operations.update(collection, db)
+    try:        
+        userID = get_jwt_identity()
+
+        return user_operations.update(collection, db, userID)
+    
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
+
 
 
 @app.route('/<string:collection>/delete', methods=['DELETE'])
 @jwt_required()
 def delete_document(collection):
-    role = get_jwt_identity()
-    if collection not in driver_roles and collection not in owner_roles:
-        return "collection doesn't exist", 404
-    elif collection not in driver_roles and  role == 'driver':
-        return 'Not authorized', 401
-    elif collection in driver_roles and role == 'owner':
-        return 'Not authorized', 401
-    return user_operations.delete(collection, db)
+    try:   
+        userID = get_jwt_identity()
 
+        user_auth.authorize_request(collection, db, request, userID)
+        
+        return user_operations.delete(collection, db)
+
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
 
 @app.route('/show_garage_reviews', methods=['GET'])
 @jwt_required()
@@ -80,90 +101,146 @@ def show_garage_reviews():
 @app.route('/show_street_reviews', methods=['GET'])
 @jwt_required()
 def show_street_reviews():
-    role = get_jwt_identity()
-    if role == 'owner':
-        return 'Not authorized', 401
     return user_queries.show_street_reviews(db)
 
 
 @app.route('/get_owner_garages', methods=['GET'])
 @jwt_required()
 def get_owner_garages():
-    return user_queries.get_owner_garages(db)
+    try:   
+        userID = get_jwt_identity()
+
+        user_auth.authorize_request('OwnerRequest', db, request, userID)
+
+        return user_queries.get_owner_garages(db)
+
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400
 
 
 @app.route('/get_user_bookmark', methods=['GET'])
 @jwt_required()
 def get_user_bookmark():
-    role = get_jwt_identity()
-    if role == 'owner':
-        return 'Not authorized', 401
-    return user_queries.get_user_bookmark(db)
+    try:
+        userID = get_jwt_identity()
+
+        user_validations.validate_driver(db, {request.args.get('driverID')})
+
+        user_auth.authorize_request('DriverRequests', db, request, userID)
+
+        return user_queries.get_user_bookmark(db, request.args.get('driverID'))
+        
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400 
+
+@app.route('/get_location_bookmark', methods=['POST'])
+@jwt_required()
+def get_location_bookmark():
+    try:
+        userID = get_jwt_identity()
+
+        user_validations.validate_driver(db, {request.json['driverID']})
+
+        user_auth.authorize_request('DriverRequests', db, request, userID)
+
+        return user_queries.get_location_bookmark(db)
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400 
+
+@app.route('/clear_driver_history', methods=['DELETE'])
+@jwt_required()
+def clear_driver_history():
+    try:
+        userID = get_jwt_identity()
+
+        user_validations.validate_driver(db, {request.args.get('driverID')})
+
+        user_auth.authorize_request('DriverRequests', db, request, userID)
+        
+        return user_queries.clear_driver_history(db)
+
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400 
+
+@app.route('/clear_driver_bookmark', methods=['DELETE'])
+@jwt_required()
+def clear_driver_bookmark():
+    try:    
+        userID = get_jwt_identity()
+
+        user_validations.validate_driver(db, {request.args.get('driverID')})
+
+        user_auth.authorize_request('DriverRequests', db, request, userID)
+
+        return user_queries.clear_driver_bookmark(db)
+    
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400 
+
+@app.route('/get_camera_info', methods=['GET'])
+@jwt_required()
+def get_camera_info():
+    try:    
+        userID = get_jwt_identity()
+
+        user_auth.authorize_request('CameraRequest', db, request, userID)
+        
+        return user_queries.get_camera_info(db)
+    
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400 
+
+
+@app.route('/log_in', methods=['GET'])
+def log_in():
+    return user_app.log_in()
 
 
 @app.route('/sign_up', methods=['POST'])
 def sign_up():
-    return user.sign_up(db)
+    return user_app.sign_up(db)
 
-
-@app.route('/update_name', methods=['POST'])
+@app.route('/update_user', methods=['PUT'])
 @jwt_required()
-def update_name():
-    return user.update_name()
+def update_user():
+    try:
+        userID = get_jwt_identity()
 
+        user_auth.authorize_user(request, userID)
 
-@app.route('/update_email', methods=['POST'])
-@jwt_required()
-def update_email():
-    return user.update_email(db)
-
-
-@app.route('/update_password', methods=['POST'])
-@jwt_required()
-def update_password():
-    return user.update_password()
-
-
-@app.route('/update_number', methods=['POST'])
-@jwt_required()
-def update_number():
-    return user.update_number()
-
+        return user_app.update_user()
+    
+    except HTTP_Exception as e:
+        return f"An Error Occurred: {e.message}", e.status_code 
+    
+    except Exception as e:
+        return f"An Error Occurred: {e}", 400 
 
 @app.route('/get_by_email', methods=['GET'])
 @jwt_required()
 def get_by_mail():
-    return user.get_by_mail()
+    return user_app.get_by_mail()
 
 
 @app.route('/get_by_id', methods=['GET'])
 @jwt_required()
 def get_by_id():
-    return user.get_by_id()
-
-
-@app.route('/log_in', methods=['GET'])
-def log_in():
-    return user.log_in(db)
-
-
-@app.route('/get_camera_info', methods=['GET'])
-@jwt_required()
-def get_camera_info():
-    return user_queries.get_camera_info(db)
-
-@app.route('/clear_driver_history', methods=['DELETE'])
-@jwt_required()
-def clear_driver_history():
-    role = get_jwt_identity()
-    if role == 'owner':
-        return 'Not authorized', 401
-    return user_queries.clear_driver_history(db)
-
-@app.route('/clear_driver_bookmark', methods=['DELETE'])
-@jwt_required()
-def clear_driver_bookmark():
-    role = get_jwt_identity()
-    if role == 'owner':
-        return 'Not authorized', 401
-    return user_queries.clear_driver_bookmark(db)
+    return user_app.get_by_id()

@@ -1,5 +1,6 @@
 from flask import jsonify
 import user_operations.user_queries_app as user_queries
+import user_operations.user_auth_app as user_auth
 import user_operations.validator as validator
 
 def handle_delete(db, collection_ref, doc):
@@ -60,39 +61,33 @@ def handle_add(db, collection_ref, doc):
         garage_doc['cameraIDs'].append(doc['id'])
         garage_ref.document(doc['garageID']).update(garage_doc)
 
-def special_handlers(collection_ref, db, doc):
-    validated, errors = validator.validate(db,
-            doc, collection_ref, is_required=True)
+def special_handlers(collection_ref, db, request, userID):
+    validator.validate(db, request.json, collection_ref, is_required=True)
 
-    if not validated:
-        return errors, 400
-            
+    user_auth.authorize_request(collection_ref, db, request, userID)
+    
     if collection_ref == 'Recent':
-        return handle_driver_history(db, doc)
+        return handle_driver_history(db, request.json)
+    
     else:
-        return handle_add_snaps(db, doc)
+        return handle_add_snaps(db, request.json)
 
 def handle_driver_history(db, doc):
-    try:
-        doc_ref = db.collection('Recent')
-        if doc_ref.document(doc['driverID']).get().exists:
-            recent_doc = doc_ref.document(doc['driverID']).get().to_dict()
-            recent_doc['history'].append({'recent': doc['recent']})
-            doc_ref.document(doc['driverID']).update(recent_doc)
-        else:
-            new_doc = {'driverID': doc['driverID'], 'history': [{'recent': doc['recent']}]}
-            doc_ref.document(doc['driverID']).set(new_doc)
+    doc_ref = db.collection('Recent')
+    if doc_ref.document(doc['driverID']).get().exists:
+        recent_doc = doc_ref.document(doc['driverID']).get().to_dict()
+        recent_doc['history'].append({'recent': doc['recent']})
+        doc_ref.document(doc['driverID']).update(recent_doc)
 
-        return jsonify("success"), 200
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
+    else:
+        new_doc = {'driverID': doc['driverID'], 'history': [{'recent': doc['recent']}]}
+        doc_ref.document(doc['driverID']).set(new_doc)
+
+    return jsonify(f"Document is added successfully"), 200
 
 def handle_update_user(db, id, new_email):
-    try:
-        user_ref = db.collection(u'Owner')
-        user_ref.document(id).update({'email': new_email})
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
+    user_ref = db.collection(u'Owner')
+    user_ref.document(id).update({'email': new_email})
 
 def handle_add_snaps(db, doc):
     camera_id = doc['cameraID']

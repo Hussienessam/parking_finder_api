@@ -1,4 +1,5 @@
 from cerberus import Validator
+from user_operations.HTTP_Exception import HTTP_Exception
 import user_operations.user_validations_app as user_validations
 
 def built_schema(collection, is_required):
@@ -47,15 +48,15 @@ def built_schema(collection, is_required):
     }
 
     recent_schema = {
-        'driverID': {'type': 'string', 'required': is_required},
-        'recent': {'type': 'dict', 'required': is_required}
+        'driverID': {'type': 'string', 'required': True},
+        'recent': {'type': 'dict', 'required': True}
     }
 
     snap_schema = {
         'cameraID': {'type': 'string', 'required': True},
-        'capacity': {'type': 'string', 'required': is_required},
-        'path': {'type': 'string', 'required': is_required},
-        'mock_garage': {'type': 'boolean', 'required': is_required}
+        'capacity': {'type': 'string', 'required': True},
+        'path': {'type': 'string', 'required': True},
+        'mock_garage': {'type': 'boolean', 'required': True}
     }
 
     if collection == "Camera":
@@ -86,7 +87,8 @@ def validate(db, document, collection, is_required):
     validated = v.validate(document)
 
     if validated:
-        document_validated, error = user_validations.document_validation(db, document, collection)
-        return document_validated, error
+        user_validations.document_validation(db, document, collection)
+    
     else:
-        return validated, v.errors
+        if not validated:
+            raise HTTP_Exception(v.errors, 400)
