@@ -63,68 +63,6 @@ def log_in():
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 
-
-def update_name():
-    name = request.json['name']
-    email = request.json['email']
-    try:
-        user = auth.get_user_by_email(email)
-        id = user.uid
-        auth.update_user(id, display_name=name)
-        user = auth.get_user(id)
-        return jsonify(
-            {'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}), 200
-
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
-
-def update_email(db):
-    email = request.json['email']
-    new_email = request.json['newemail']
-    try:
-        user = auth.get_user_by_email(email)
-        id = user.uid
-        auth.update_user(id, email=new_email)
-        user_handlers.handle_update_user(db, id, new_email)
-        user = auth.get_user(id)
-        return jsonify(
-            {'id': user.uid, 'name': user.display_name, 
-            'email': user.email, 'number': user.phone_number}), 200
-
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
-
-
-def update_number():
-    number = request.json['number']
-    email = request.json['email']
-    try:
-        user = auth.get_user_by_email(email)
-        id = user.uid
-        auth.update_user(id, phone_number=number)
-        user = auth.get_user(id)
-        return jsonify(
-            {'id': user.uid, 'name': user.display_name, 'email': user.email, 'number': user.phone_number}), 200
-
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
-
-
-def update_password():
-    oldpass = request.json['old_password']
-    email = request.json['email']
-    newpass = request.json['new_password']
-    try:
-        try :
-            user = login_auth.sign_in_with_email_and_password(email, oldpass)
-        except Exception as e:
-            return jsonify({"value": "incorrect password"}), 400
-        id = user['localId']
-        auth.update_user(id, password=newpass)
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        return f"An Error Occurred: {e}", 400
-
 def parse_error(error):
     return error.split(' (')[0]
 
