@@ -5,7 +5,8 @@ def authorize_request(collection, db, request, userID):
     if user_app.get_role(userID, db) == "admin":
         return    
 
-    if (collection == 'Camera' or collection == 'Snaps' or  collection == 'GarageSnaps') and request.method == "GET":
+    if (collection == 'Camera' or collection == 'Snaps' 
+        or collection == 'owner' or collection == 'GarageSnaps') and request.method == "GET":
         return
 
     if collection == "Bookmark" or collection == "Review" or collection == "DriverRequests" or collection == "Recent":

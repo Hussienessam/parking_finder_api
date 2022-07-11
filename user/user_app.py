@@ -46,7 +46,7 @@ def get_role(id, db):
         return user['role']
 
     except Exception as e:       
-        return f"An Error Occurred: {e}", 400
+        return f"Error with user token try to re-login", 400
 
 def log_in():
     password = request.args.get('password')
