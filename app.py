@@ -131,7 +131,7 @@ def get_user_bookmark():
 
         user_auth.authorize_request('DriverRequests', db, request, userID)
 
-        return user_queries.get_user_bookmark(db, request.args.get('driverID'))
+        return user_queries.get_user_bookmark(db)
         
     except HTTP_Exception as e:
         return f"An Error Occurred: {e.message}", e.status_code 

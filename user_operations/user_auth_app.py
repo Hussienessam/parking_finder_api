@@ -3,6 +3,9 @@ import user.user_app as user_app
 
 def authorize_request(collection, db, request, userID):
     if user_app.get_role(userID, db) == "admin":
+        return    
+
+    if collection == 'Camera' or collection == 'Snaps' and request.method == "GET":
         return
     
     change_request = False
@@ -10,8 +13,9 @@ def authorize_request(collection, db, request, userID):
     if request.method == "PUT" and 'driverID' in request.json  or request.method == "POST":
         change_request = True
 
-    if collection == "Bookmark" or collection == "Review" or collection == "DriverRequests":
+    if collection == "Bookmark" or collection == "Review" or collection == "DriverRequests" or collection == "Recent":
         authorize_driver(collection, db, request, userID, change_request)
+
 
     elif collection == "Garage":
         authorize_owner(collection, db, request, userID, change_request)

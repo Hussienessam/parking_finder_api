@@ -85,10 +85,6 @@ def handle_driver_history(db, doc):
 
     return jsonify(f"Document is added successfully"), 200
 
-def handle_update_user(db, id, new_email):
-    user_ref = db.collection(u'Owner')
-    user_ref.document(id).update({'email': new_email})
-
 def handle_add_snaps(db, doc):
     camera_id = doc['cameraID']
     capacity = doc['capacity']

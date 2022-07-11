@@ -60,13 +60,13 @@ def get_location_bookmark(db):
     bookmarks = [doc.to_dict() for doc in docs]
 
     if len(bookmarks) == 0:
-        raise HTTP_Exception("user has no bookmarks", 400)
+        return jsonify(), 200
     
     else:
         for doc in bookmarks:
             if doc['location'] == request.json['location']:
                 return jsonify(doc), 200
-        raise HTTP_Exception( "user has no bookmarks matching the given location", 400)
+            return jsonify(), 200
 
 def get_garage_camera(id, db):
     try:
