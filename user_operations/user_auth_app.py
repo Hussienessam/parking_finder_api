@@ -5,32 +5,26 @@ def authorize_request(collection, db, request, userID):
     if user_app.get_role(userID, db) == "admin":
         return    
 
-    if collection == 'Camera' or collection == 'Snaps' and request.method == "GET":
+    if (collection == 'Camera' or collection == 'Snaps' or  collection == 'GarageSnaps') and request.method == "GET":
         return
-    
-    change_request = False
-
-    if request.method == "PUT" and 'driverID' in request.json  or request.method == "POST":
-        change_request = True
 
     if collection == "Bookmark" or collection == "Review" or collection == "DriverRequests" or collection == "Recent":
-        authorize_driver(collection, db, request, userID, change_request)
-
+        authorize_driver(collection, db, request, userID)
 
     elif collection == "Garage":
-        authorize_owner(collection, db, request, userID, change_request)
+        authorize_owner(collection, db, request, userID)
     
     elif collection == "GarageSnaps" or collection == "GarageCamera" or collection == "CameraRequest":
-        authorize_garage_owner(collection, db, request, userID, change_request)
+        authorize_garage_owner(collection, db, request, userID)
     
     elif collection == "OwnerRequest":
-        if userID != request.args.get('id'):
+        if userID != request.args.get('ownerID'):
             raise HTTP_Exception('Permission denied', 403) 
             
     else:
         raise HTTP_Exception('Permission denied', 403) 
 
-def authorize_driver(collection, db, request, userID, change_request):
+def authorize_driver(collection, db, request, userID):
     if collection == "DriverRequests":
         driverID = request.args.get('driverID')
         if not driverID:
@@ -40,12 +34,15 @@ def authorize_driver(collection, db, request, userID, change_request):
             raise HTTP_Exception('Permission denied', 403) 
 
     else:
-        if change_request:
+        if request.method == 'POST' or request.method == 'PUT' and 'driverID' in request.json:
             if request.json['driverID'] != userID:
-                raise HTTP_Exception('Permission denied', 403)     
-    
+                raise HTTP_Exception('Permission denied', 403)
+
         else:
             id = request.args.get('id')
+            if request.method == 'PUT' and 'driverID' not in request.json:
+                id = request.json['id']
+                
             if not db.collection(collection).document(id).get().exists:
                 raise HTTP_Exception("document doesn't exit", 404)
         
@@ -53,13 +50,16 @@ def authorize_driver(collection, db, request, userID, change_request):
             if doc['driverID'] != userID:
                 raise HTTP_Exception('Permission denied', 403) 
 
-def authorize_owner(collection, db, request, userID, change_request):
-    if change_request:
+def authorize_owner(collection, db, request, userID):
+    if request.method == 'POST' or request.method == 'PUT' and 'ownerID' in request.json:
         if request.json['ownerID'] != userID:
             raise HTTP_Exception('Permission denied', 403)
-    
+
     else:
         id = request.args.get('id')
+        if request.method == 'PUT' and 'driverID' not in request.json:
+                id = request.json['id']
+
         if not db.collection(collection).document(id).get().exists:
             raise HTTP_Exception("document doesn't exit", 404)
 
@@ -73,12 +73,15 @@ def authorize_user(request, userID):
     if user_id != userID:
         raise HTTP_Exception('Permission denied', 403)
 
-def authorize_garage_owner(collection, db, request, userID, change_request):
-    if change_request:
+def authorize_garage_owner(collection, db, request, userID):
+    if request.method == 'POST' or request.method == 'PUT' and 'garageID' in request.json:
         garage_id = request.json['garageID']
 
     else:
         id = request.args.get('id')
+        if request.method == 'PUT' and 'garageID' not in request.json:
+            id = request.json['id']
+
         if collection == 'CameraRequest':
             id = request.args.get('cameraID')
 
