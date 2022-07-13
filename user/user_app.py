@@ -14,6 +14,8 @@ def sign_up(db):
     password = request.json['password']
     number = request.json['number']
     role = request.json['role']
+    if role != 'owner' and role != 'driver':
+        return f"An Error Occurred: invalid role", 400
     try :
         try :
             user = auth.get_user_by_email(email)

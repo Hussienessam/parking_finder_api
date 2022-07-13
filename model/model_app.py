@@ -39,6 +39,7 @@ def saveImage(input_path, url):
         'image/png': 'PNG',
         'image/gif': 'GIF',
         'image/jpg': 'JPG',
+        'image/JPG': 'JPG'
     }
 
     imageSaved = True

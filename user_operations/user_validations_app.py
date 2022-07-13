@@ -82,5 +82,5 @@ def validate_camera(db, document):
 
 def validate_garage_camera_for_collection(db, document):
     doc_ref = db.collection("GarageCamera")        
-    if not doc_ref.document(document['garageCameraID']).get().exists:
-        raise HTTP_Exception("invalid garageCameraID", 400)
+    if not doc_ref.document(document['cameraID']).get().exists:
+        raise HTTP_Exception("invalid cameraID", 400)
