@@ -32,7 +32,7 @@ def built_schema(collection, is_required):
         "id": {'type': 'string', 'required': True},
         "content": {'type': 'string', 'required': is_required},
         "date": {'type': 'datetime', 'required': is_required},
-        "cameraID": {'type': 'string', 'required': is_required},
+        "cameraID": {'type': 'string', 'required': False},
         'driverID': {'type': 'string', 'required': is_required},
         'garageID': {'type': 'string', 'required': is_required}
     }

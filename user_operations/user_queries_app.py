@@ -12,7 +12,6 @@ def show_garage_reviews(db):
         response = []
         for doc in reviews:
             doc = doc.to_dict()
-            doc['cameraID'] = get_garage_camera(doc['cameraID'], db)
             doc['driverID'] = user_app.get_user_by_id(doc['driverID'])
             response.append(doc)
         return jsonify(response), 200
@@ -26,8 +25,11 @@ def show_street_reviews(db):
         review_ref = db.collection('Review')
         camera_id = request.args.get('cameraID')
         reviews = review_ref.where('cameraID', '==', camera_id).order_by('date', direction=firestore.Query.DESCENDING).stream()
-        result = [review.to_dict() for review in reviews]
-        return jsonify(result), 200
+        response = []
+        for doc in reviews:
+            doc = doc.to_dict()
+            doc['driverID'] = user_app.get_user_by_id(doc['driverID'])
+        return jsonify(response), 200
     except Exception as e:
         return f"An Error Occurred: {e}", 400
 

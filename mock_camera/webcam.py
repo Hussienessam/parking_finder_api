@@ -11,7 +11,7 @@ def mock(db, bucket,storage):
     capacity = request.json['capacity']
     mock_garage = request.json['mock_garage']
 
-    url = "http://192.168.100.5:8080/shot.jpg"
+    url = "http://10.1.3.223:8080/shot.jpg"
     while True:
         img_resp = requests.get(url)
         img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
