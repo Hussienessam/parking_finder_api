@@ -3,7 +3,6 @@ from flask import request, jsonify
 from firebase_admin import auth
 import database.login_connect as db_connection
 from flask_jwt_extended import create_access_token
-import user_operations.user_handlers_app as user_handlers
 
 login_auth = db_connection.connect()[0]
 
