@@ -4,4 +4,4 @@ import cvlib as cv
 def model(input_path):
     image = cv2.imread(input_path)
     box, label, count = cv.detect_common_objects(image)
-    return label.count('car')
+    return label.count('car')+label.count('bicycle')+label.count('motorcycle')+label.count('bus')+label.count('truck')
